@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Foundations</title>
+    <link rel="stylesheet" href="./modern.css" type="text/css">
+</head>
+<body>
+  <h1>1. Foundations</h1>
+  <p><em>Regularity</em> enables us to apply equational reasoning (substituting equals for equals) to transform and optimize programs.
+
+  <section>
+    <h1>1.1 Categories of Ideas: Entity, Species, Genus</h1>
+    <section>
+      <h1>Entities</h1>
+      <dl>
+        <dt>Abstract Entities</dt>
+        <dd>An <em>abstract entity</em> is an individual thing that is eternal and unchangeable. Blue and 13 are examples of abstract entities.</dd>
+        <dt>Concrete Entities</dt>
+        <dd>A <em>concrete entity</em> is an individual thing that comes into and out of existence in space and time. Socrates and the United States of America are examples of concrete entities.</dd>
+      </dl>
+    </section>
+    <section>
+      <h1>Species</h1>
+      <dl>
+        <dt>Abstract Species</dt>
+        <dd>An <em>abstract species</em> describes common properties of essentially equivalent abstract entities. Examples of abstract species are natural number and color.</dd>
+        <dt>Concreate Species</dt>
+        <dd>A <em>concrete species</em> describes the set of attributes of essentially equivalent concrete entities. Examples of concrete species are man and U.S. state.</dd>
+      </dl>
+    </section>
+    <section>
+      <h1>Genera (/'dʒɛnərə/)</h1>
+      <dl>
+        <dt>Abstract Genera</dt>
+        <dd>An <em>abstract genus</em> (/'dʒi:nəs/) describes different abstract species that are similar in some respect. Examples of abstract genera are number and binary operator.</dd>
+        <dt>Concrete Genera</dt>
+        <dd>A <em>concrete genus</em> describes different concrete species similar in some respect. Examples of concrete genera are mammal and biped (/'baiped/).</dd>
+      </dl>
+      <p>An entity belongs to a single species, which provides the rules for its construction or existence. An entity can belong to several genera, each of which describes certain properties.</p>
+    </section>
+    <section>
+      <h1>Taxonomic Rank</h1>
+      <p>In biological classification, taxonomic rank is the relative level of a group of organisms (a taxon) in a taxonomic hierarchy: such as species (種), genus (属), family (科), order (目), and so on.</p>
+    </section>
+  </section>
+  <section>
+    <h1>1.2. Values</h1>
+    <p>Unless we know the interpretation, the only things we see in a computer are 0s and 1s. A <em>datum</em> is a finite sequence of 0s and 1s.</p>
+    <section>
+      <h1>Value Types</h1>
+      <p>A <em>value type</em> is a correspondence between a species (abstract or concrete) and a set of datums.</p>
+      <dl>
+        <dt>Representation</dt>
+        <dd>A datum corresponding to a particular entity is called a <em>representation</em> of the entity.</dd>
+        <dt>Interpretation</dt>
+        <dd>The entity is called the <em>interpretation</em> of the datum.</dd>
+      </dl>
+      <p>We <em>interpret</em> a datum as a particlar entity. For example,</p>
+      <ul>
+        <li>integers can be represented in 32-bit two's complement big-endican format, and</li>
+        <li>a datum of 32-bit length can be interpreted as an integer</li>
+      </ul>
+      <p>The entity, the integer in particular, is the <em>interpretation</em> of the datum. We refer to a datum together with its interpretation as a <em>value</em>.</p>
+      <dl>
+        <dt>Well-formed datum</dt>
+        <dd>A datum is <em>well formed</em> with respect to a value type if and only if that datum represents an abstract entity. For example, every sequence of 32 bits is well formed when interpreted as a two's-complement integer.</dd>
+        <dt>Not well-formed datum</dt>
+        <dd>An IEEE 754 floating-point <code>NaN</code> (Not a Number) is not well formed when interpreted as a real number.</dd>
+      </dl>
+    </section>
+    <section>
+      <h1>Properties of the Value Type</h1>
+      <section>
+        <h1>Properly partial or total</h1>
+        <dl>
+          <dt>Properly partial value types</dt>
+          <dd>A value type is <em>properly partial</em> if its values represent a proper subset (&ast;) of the abstract entities in the corresponding species. For example, the type <code>int</code> is properly partial. (The space of integers is infinite.)</dd>
+          <dt>Total value </dt>
+          <dd>Otherwise it is <em>total</em>. For example, the type <code>bool</code> is total. (The space of the the boolean only contains <code>true</code> and <code>false</code>, therefore any value of the type <code>bool</code> totally represents the boolean.)</dd>
+        </dl>
+        <dl>
+          <dt>(&ast;) Proper subsets</dt>
+          <dd>If <code>A &subseteq; B</code> but <code>A &ne; B</code>, we write <code>A &subset; B</code> and refer to <code>A</code> as a <em>proper subset</em> of <code>B</code>.</dd>
+        </dl>
+      </section>
+      <section>
+        <h1>Uniqueness of Representation</h1>
+        <dl>
+          <dt>Uniquely represented value types</dt>
+          <dd>A value type is <em>uniquely represented</em> if and only if at most one value corresponds to each abstract entity. For example, a type representing an integer in two’s complement is uniquely represented.</dd>
+          <dt>Not uniquely represented value types</dt>
+          <dd>A value type is <em>not uniquely represented</em> if two or more values may correspond to each abstract entity. For example, a type representing a truth value as a byte that interprets zero as false and nonzero as true is not uniquely represented.</dd>
+        </dl>
+      </section>
+      <section>
+        <h1>Ambiguity</h1>
+        <dl>
+          <dt>Ambiguous value types</dt>
+          <dd>A value type is <em>ambiguous</em> if and only if a value of the type has more than one interpretation. For example, a type representing a calendar year over a period longer than a single century as two decimal digits is ambiguous.</dd>
+        </dl>
+      </section>
+    </section>
+    <section>
+      <h1>Equality</h1>
+      <dl>
+        <dt>Eqaul values</dt>
+        <dd>Two values of a value type are <em>equal</em> if and only if they represent the same abstract entity.</dd>
+        <dt>Representationally eqaul values</dt>
+        <dd>Two values of a value type are <em>representationally equal</em> if and only if their datums are identical sequences of 0s and 1s.</dd>
+      </dl>
+      <section class="lemma">
+        <p><b>Lemma 1.1</b>: If a value type is uniquely represented, equality implies representational equality.</p>
+        <p><em>Solution</em>: Assuming that (by definition of unquely represented value types) at most one value corresponds to each abstract entity, we will prove two statements:</p>
+        <ol type="A">
+          <li>if two values of the type are equal, then they are representationally equal, and</li>
+          <li>if two values of the type are not equal, then they are not representationally equal.</li>
+        </ol>
+        <section>
+          <h1>Proof of A</h1>
+          <p>To prove the statement A, we assume that two values of the type are equal but they are not representationally equal, and show that the assumption leads to a contradiction.</p>
+          <p>If two values of the type are equal, then (by definition of equal values) they represent the same abstract entity, and at most one value corresponds to the abstract entity.</p>
+          <p>If the two values are not representationally equal, then (by definition of representationally equal values) their datums are different sequences of 0s and 1s. Thus two datums correspond to the single abstract entity, which contradics the definition of uniquely represented value types.&marker;</p>
+        </section>
+        <section>
+          <h1>Proof of B</h1>
+          <p>To prove the statement B, we will prove its contraposition: if two values of the type are representationlly equal, then they are equal. Again we assume that the two values are representationally equal but they are not equal, and show that the assumption leads to a contradiction.</p>
+          <p>If two values of the type are representationally equal, then (by definition of representationally equal values), their datums are identical sequences of 0s and 1s.</p>
+          <p>If the two values are not equal, then (by definition of equal values) they represent differnt abstract entities. As at most one value corresponds to each abstract entity, (by definition of representationally equal values) their datums may not have identical sequences of 0s and 1s, which contradicts the preceeding paragraph.&marker;</p>
+        </section>
+      </section>
+      <section class="lemma">
+        <p><b>Lemma 1.2</b>: If a value type is not ambiguous, representational equality implies equality.</p>
+        <p><em>Solution</em>: Assuming that (by definition of ambiguous value types) a value of the type has at most one interpretation &mdash; a particular entity as which a datum of the value is interpreted, we will prove two statements:</p>
+        <ol type="A">
+          <li>if two values of the type are representationally equal, then they are equal, and</li>
+          <li>if two values of the type are not representationally equal, then they are not equal.</li>
+        </ol>
+        <section>
+          <h1>Proof of A</h1>
+          <p>To prove the statement A, we assume that two values of the type are representationally equal but they are not equal, and show that the assumption leads to a contradiction.</p>
+          <p>If two values of the type are presentationally equal, then (by definition of representationally equal values), their datums are identical sequences of 0s and 1s. As a value of the type has at most one interpretation (a particular entity as which the datums are interpreted),the two datums represent the identical entity.</p>
+          <p>If the two values are not equal, then (by definition of equal values) they represent different abstract entities, thus a contradiction to the preceeding paragraph.&marker;</p>
+        </section>
+        <section>
+          <h1>Proof of B</h1>
+          <p>To prove the statement B, we will prove its contraposition: if two values of the type are equal, then the two values are representationally equal. Again we assume that the two values are equal but they are not representationally equal, and show that the assumption leads to a contradiction.</p>
+          <p>If two values of the type are equal, then (by definition of equal values) they represent the same abstract entity.</p>
+          <p>If the two values are not representationally equal, then (by definition of representationally equal values) their datums are different sequences of 0s and 1s. As a value of the type has at most one interpretation (a particular entity as which a datum is interpreted), the two datums represent different entities, thus a contradiction to the preceeding paragraph.&marker;</p>
+        </section>
+      </section>
+    </section>
+  </section>
+</body>
+</html>

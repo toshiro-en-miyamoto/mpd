@@ -1,0 +1,30 @@
+p {
+    margin-left: 3em;
+}
+dt {
+    margin-left: 3em;
+    margin-bottom: 0.5em;
+}
+dd {
+    margin-left: 5em;
+    margin-bottom: 0.5em;
+}
+.center-aligned {
+    text-align: center;
+}
+.left-aligned {
+    text-align: left;
+}
+.math {
+    padding: 0.2em 1.5em;
+    background-color: lightgrey;
+    border-radius: 10px;
+}
+.code {
+    margin: 0.2em 1.5em;
+    padding: 0.2em 0.2em;
+    background-color: lightgrey;
+}
+.algorithm {
+    padding: 0 1.5em;
+}
