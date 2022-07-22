@@ -142,3 +142,70 @@ The intent of the Bridge design pattern is to isolate physical dependencies from
 - Keep in mind that Bridges can have a negative performance impact;
 - Be aware that a *partial Bridge* can have a positive impact on performance when separating frequently used data from infrequently used data;
 
+## The Prototype Design Pattern Explained
+
+> Intent: Specify the kind of objects to create using a prototypical instance, and create new objects by copying this prototype. —GoF
+
+The Prototype design pattern is commonly implemented by means of a virtual `clone()` function in the base class.
+
+```c++
+class animal
+{
+public:
+    virtual ~animal() = default;
+    virtual std::unique_ptr<animal> clone() const = 0;
+
+    virtual std::string sound() const = 0;
+};
+
+class sheep : public animal
+{
+public:
+    explicit sheep(std::string name) : name_{std::move(name)} {}
+    std::unique_ptr<animal> clone() const override;
+
+    std::string sound() const override;
+
+private:
+    std::string name_;
+};
+```
+
+The `sheep` class is now required to implement the `clone()` function and to return an exact copy of the `sheep`: Inside its own `clone()` function it makes use of the `std::make_unique()` function and its own copy constructor, which is always assumed to do the right thing, even if the `sheep` class changes in the future.
+
+```c++
+std::unique_ptr<animal> sheep::clone() const
+{
+    return std::make_unique<sheep>(*this);
+}
+
+std::string sheep::sound() const
+{
+    return name_ + ":baa\n";
+}
+```
+
+With the `clone()` function in place, we are now able to create an exact copy of Dolly.
+
+```c++
+TEST(ch6, dolly)
+{
+    std::string_view expected{"Dolly:baa\n"};
+
+    std::unique_ptr<animal> dolly = std::make_unique<sheep>("Dolly");
+    EXPECT_EQ(dolly->sound(), expected);
+
+    std::unique_ptr<animal> clone = dolly->clone();
+    EXPECT_EQ(clone->sound(), expected);
+}
+```
+
+## Analyzing the Shortcomings of the Prototype Design Pattern
+
+- The function name `clone()` can almost be considered a keyword for identifying the Prototype design pattern.
+- Because of the specific use case, there is no *modern* solution.
+- There also is no value semantics based solution: as soon as we had a value, the most natural and intuitive solution would be to build on the two copy operations (i.e. the copy constructor and the copy assignment operator).
+
+Our `animal` hierarchy would be simpler and more comprehensible if you could replace it with a *value semantics* approach and therefore avoid having to apply the reference semantics based Prototype design pattern. Still, whenever you encounter the need to create an abstract copy, the Prototype design pattern with an according `clone()` function is the right choice. (In comparison to the ability to perform an abstract copy operation, the few downsides are easily acceptable.)
+
+
