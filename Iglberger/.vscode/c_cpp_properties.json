@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "bazel-Iglberger/external/com_google_googletest/googletest/include"
+                "bazel-Iglberger/external/com_google_googletest/googletest/include/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -208,4 +208,36 @@ TEST(ch6, dolly)
 
 Our `animal` hierarchy would be simpler and more comprehensible if you could replace it with a *value semantics* approach and therefore avoid having to apply the reference semantics based Prototype design pattern. Still, whenever you encounter the need to create an abstract copy, the Prototype design pattern with an according `clone()` function is the right choice. (In comparison to the ability to perform an abstract copy operation, the few downsides are easily acceptable.)
 
+## The Adapter Design Pattern Explained
+
+> Intent: Convert the interface of a class into another interface clients expect. Adapter lets classes work together that couldn’t otherwise because of incompatible interfaces. —GoF
+
+## Examples from the Standard Library
+
+```c++
+template<typename T, typename Container = std::deque<T>>
+class stack;
+
+template<typename T, typename Container = std::deque<T>>
+class queue;
+
+template<typename T
+    , typename Container = std::vector<T>
+    , typename Compare = std::less<typename Container::value_type>
+>
+class prioript_queue;
+```
+
+## Comparison between Adapter and Strategy
+
+From a structural point of view, the Strategy and Adapter design patterns are very similar.
+
+- the primary focus of an Adapter is to standardize interfaces and to integrate incompatible functionality into an existing set of conventions
+- the primary focus of the Strategy is to enable the configuration of behavior from the outside, building on, and providing, an expected interface
+
+## Function Adapters
+
+Another example for the Adapter design pattern is the Standard Library’s free functions `begin()` and `end()`.
+
+
 
