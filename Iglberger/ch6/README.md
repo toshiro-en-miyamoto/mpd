@@ -239,5 +239,11 @@ From a structural point of view, the Strategy and Adapter design patterns are ve
 
 Another example for the Adapter design pattern is the Standard Library’s free functions `begin()` and `end()`.
 
+## The External Polymorphism Design Pattern Explained
+
+Its intent is to enable the polymorphic treatment of non-polymorphic types (i.e. types without a single virtual function):
+
+> Intent: Allow C++ classes unrelated by inheritance and/or having no virtual methods to be treated polymorphically. These unrelated classes can be treated in a common manner by software that uses them. —C. Cleeland, D. C. Schmidt, T. H. Harrison
+
 
 
