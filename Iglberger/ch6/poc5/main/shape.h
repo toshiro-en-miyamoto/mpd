@@ -12,12 +12,17 @@ public:
     // potentially more polymorphic operations
 };
 
-template<typename Shape_t>
+struct Default_drawer
+{
+    template<typename T>
+    void operator()(T const& obj) const { draw(obj); }
+};
+
+template<typename Shape_t
+        ,typename Draw_strategy = Default_drawer>
 class Shape_model : public Shape_concept
 {
 public:
-    using Draw_strategy = std::function<void(Shape_t const&)>;
-
     explicit Shape_model(Shape_t shape, Draw_strategy drawer)
     : shape_ { std::move(shape) }
     , drawer_ { std::move(drawer) }

@@ -245,5 +245,110 @@ Its intent is to enable the polymorphic treatment of non-polymorphic types (i.e.
 
 > Intent: Allow C++ classes unrelated by inheritance and/or having no virtual methods to be treated polymorphically. These unrelated classes can be treated in a common manner by software that uses them. —C. Cleeland, D. C. Schmidt, T. H. Harrison
 
+In our simple example, the polymorphic behavior only consists of the `draw()` function. However, the set of requirements could, of course, be larger (e.g. `rotate()`, `serialize()`, …). This set of virtual functions has been moved into the abstract `Shape_concept` class. Therefore, `Shape_concept` now takes the place of the previous `Shape` base class.
 
+```c++
+class Shape_concept
+{
+public:
+    virtual ~Shape_concept() = default;
+    virtual void draw() const = 0;
+    // potentially more polymorphic operations
+};
+```
+
+The major difference is, that concrete shapes are not required to know about `Shape_concept` and, in particular, are not expected to inherit from it. Thus, the shapes are completely decoupled from the set of virtual functions.
+
+```c++
+class Circle
+{
+public:
+    explicit Circle(double radius) : radius_ {radius} {}
+    double radius() const { return radius_; }
+private:
+    double radius_;
+};
+```
+
+The only class inheriting from `Shape_concept` is the `Shape_model` class template. This class is instantiated for a specific kind of shape (`Circle`, `Square`, …) and acts as a wrapper for it. However, `Shape_model` does not implement the logic of the virtual functions itself, but delegates the request to the desired implementation.
+
+```c++
+template<typename Shape_t>
+class Shape_model : public Shape_concept
+{
+public:
+    using Draw_strategy = std::function<void(Shape_t const&)>;
+
+    explicit Shape_model(Shape_t shape, Draw_strategy drawer)
+    : shape_ { std::move(shape) }
+    , drawer_ { std::move(drawer) }
+    {}
+
+    void draw() const override { drawer_(shape_); }
+
+private:
+    Shape_t shape_;
+    Draw_strategy drawer_;
+};
+```
+
+Note, that `Shape_model` stores an instance of the according shape (composition, not inheritance). It thus acts as a wrapper that augments the specific shape type with the required polymorphic behavior (in our case the `draw()` function).
+
+Since `Shape_model` implements the `Shape_concept` abstraction, it needs to provide an implementation for the `draw()` function. However, it is not the responsibility of the `Shape_model` to implement the `draw()` details itself. Instead, it should forward a drawing request to the actual implementation. For that purpose, we can again reach for the Strategy design pattern and for the abstracting power of `std::function`.
+
+This is an exemplar for combining runtime and compile time polymorphism: the `Shape_concept` base class provides the abstraction for all possible types, while the deriving `Shape_model` class template provides the code generation for shape-specific code.
+
+With this functionality in place, we are now free to implement any desired drawing behavior.
+
+```c++
+class Circle;
+class Square;
+
+class Cout_draw_strategy
+{
+public:
+    void operator()(Circle const&) const;
+    void operator()(Square const&) const;
+};
+```
+
+and then
+
+```c++
+TEST(ch6, poc4)
+{
+    using Shapes = std::vector<std::unique_ptr<Shape_concept>>;
+    using Circle_model = Shape_model<Circle>;
+    using Square_model = Shape_model<Square>;
+
+    Shapes shapes{};
+    shapes.emplace_back(
+        std::make_unique<Circle_model>(
+            Circle {2.3}, Cout_draw_strategy{}
+        )
+    );
+    shapes.emplace_back(
+        std::make_unique<Square_model>(
+            Square {1.2}, Cout_draw_strategy{}
+        )
+    );
+    shapes.emplace_back(
+        std::make_unique<Circle_model>(
+            Circle {4.1}, Cout_draw_strategy{}
+        )
+    );
+
+    for (auto const& shape : shapes) {
+        shape->draw();
+    }
+}
+```
+
+## Analyzing the Shortcomings of the External Polymorphism Design Pattern
+
+The External Polymorphism design pattern does not really fulfill the expectations of a clean and simple solution and definitely not the expectations of a value semantics based solution. It does not help to reduce pointers, does not reduce the number of manual allocations, does not lower the number of inheritance hierarchies, and does not help to simplify user code.
+
+Perhaps the `Shape_concept` base class does not really represent an abstraction of a shape. It is reasonable to argue that shapes are more than just drawing. Perhaps we should have named the abstraction `Drawable` and the LSP would have been satisfied.
+
+> The *Liskov Substitution Principle* (LSP) is the third of the SOLID principles and concerned with behavioral subtyping, i.e. with the expected behavior of an abstraction. This is what we commonly call an *IS-A* relationship. This relationship, i.e. the expectations in an abstraction, must be adhered to in a subtype. —Chapter 2, Guideline 6: Adhere to the Expected Behavior of Abstractions
 
