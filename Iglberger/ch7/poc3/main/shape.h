@@ -20,8 +20,7 @@ class Owning_shape_model : public Shape_concept
 {
 public:
     explicit Owning_shape_model(Shape_t shape, Draw_strategy drawer)
-    : shape_ { std::move(shape) }
-    , drawer_ { std::move(drawer) }
+    : shape_ {std::move(shape)}, drawer_ {std::move(drawer)}
     {}
 
     void draw() const override { drawer_(shape_); }
@@ -45,7 +44,8 @@ public:
     Shape(Shape_t shape, Draw_strategy drawer)
     {
         using Model = detail::Owning_shape_model<Shape_t, Draw_strategy>;
-        pimpl_ = std::make_unique(std::move(shape, std::move(drawer)));
+        pimpl_
+        = std::make_unique<Model>(std::move(shape), std::move(drawer));
     }
 
     Shape(Shape const& other) : pimpl_ {other.pimpl_->clone()} {}
