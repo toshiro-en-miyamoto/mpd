@@ -49,9 +49,10 @@ public:
     }
 
     Shape(Shape const& other) : pimpl_ {other.pimpl_->clone()} {}
-    Shape& operator=(Shape other)
+    Shape& operator=(Shape const& other)
     {
-        pimpl_.swap(other.pimpl_);
+        Shape copy {other};
+        pimpl_.swap(copy.pimpl_);
         return *this;
     }
 
