@@ -24,3 +24,7 @@ Chapter 6.
 - GoF: Bridge (*Pimpl*), Prototype (`clone()`)
 - C++: Container *adaptors* in `std::stack` and `std::dueue`
 - general: the External Ploymorphism design pattern
+
+Chapter 7.
+
+- C++: `alignas` specifier, `std::construct_at()`, `std::destroy_at()`, `std::forward()`
