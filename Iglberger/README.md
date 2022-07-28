@@ -27,4 +27,5 @@ Chapter 6.
 
 Chapter 7.
 
-- C++: `alignas` specifier, `std::construct_at()`, `std::destroy_at()`, `std::forward()`
+- C++: `std::any`, `std::any_cat`, `alignas` specifier, `std::construct_at()`, `std::destroy_at()`, `std::forward()`, `std::addressof()`, `static_cast`
+- general: the Type Erasure design pattern

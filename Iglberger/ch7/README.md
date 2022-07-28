@@ -193,3 +193,125 @@ Although we are now dealing with values that can be copied and moved, it is not 
 ```
 
 The reason is, that after all `Shape` is only an abstraction from a concrete shape type and only stores a pointer-to-base.
+
+## The Setup Costs of an Owning Type Erasure Wrapper
+
+```c++
+int compute(int i, int j, std::function<int(int, int)> op)
+{
+    return op(i, j);
+}
+int main()
+{
+    int const i = 17;
+    int const j = 10;
+    int const sum = compute(i, j, [offset=15](int x, int y){
+        return x + y + offset;
+    });
+}
+```
+
+In this example, the given lambda is converted into a `std::function` instance. This conversion will involve a copy operation and might involve a memory allocation. It entirely depends on the size of the given callable and on the implementation of `std::function`.
+
+For that reason, `std::function` is a different kind of abstraction than for instance `std::string_view` and `std::span`. `std::string_view` and `std::span` are *non-owning abstractions*, that are cheap to copy because they only consist of a pointer to the first element and a size. Because these two types perform a shallow copy, they are perfectly suited as function parameters.
+
+`std::function`, on the other hand, is an *owning abstraction*, that performs a deep copy. Therefore it is not the perfect type to be used as function parameter. Unfortunately, the same is true for our `Shape` implementation.
+
+The underlying problem is the *owning semantics* of the `Shape` class: on the basis of its *value semantics* background, our current `Shape` implementation will always create a copy of the given shape and will always own the copy.
+
+## A Simple Non-Owning Type Erasure Implementation
+
+You might want to reach for a *non-owning* implementation of Type Erasure, despite the disadvantage that this pulls you back into the realm of reference semantics.
+
+```c++
+class Shape_const_ref
+{
+public:
+    template<typename Shape_t, typename Draw_strategy>
+    Shape_const_ref(Shape_t& shape, Draw_strategy& drawer)
+    : shape_ {std::addressof(shape)}
+    , drawer_ {std::addressof(drawer)}
+    , draw_ {[](void const* shape_bytes, void const* drawer_bytes){
+        auto const* shape = static_cast<Shape_t const*>(shape_bytes);
+        auto const* drawer = static_cast<Draw_strategy const*>(drawer_bytes);
+        (*drawer)(*shape);
+    }} {}
+
+private:
+    friend void draw(Shape_const_ref const& shape)
+    { shape.draw_(shape.shape_, shape.drawer_); }
+
+    void const* shape_ {nullptr};
+    void const* drawer_ {nullptr};
+
+    using Draw_operation = void(void const*, void const*);
+    Draw_operation* draw_ {nullptr};
+};
+```
+
+As the name suggests, the `Shape_const_ref` class represents a *reference* to a `const` shape type. Instead of storing a copy of the given shape, it only holds a pointer to it in form of a `void*`.
+
+In addition, it holds a `void*` to the associated `Draw_strategy`, and as the third data member, a function pointer to the manually implemented virtual `draw()` function.
+
+It is efficient, short, simple, and it can even be shorter and simpler if you do not need to store any kind of associated data or Strategy object.
+
+```c++
+TEST(ch7, poc4)
+{
+    Circle circle {3.14};
+
+    auto circle_drawer = [](Circle const& c)
+    { std::cout << "circle(" << c.radius() << ")\n"; };
+
+    draw(Shape_const_ref {circle, circle_drawer});
+
+    std::string_view expected {
+        "circle(3.14)\n"
+    };
+}
+```
+
+This call triggers the desired effect, notably without any memory allocation or expensive copy operation, but only by wrapping polymorphic behavior around a set of pointers to the given shape and drawing Strategy.
+
+[You can use `std::vector` of `Shape_const_ref` as long as circles are lvalue instances.]
+
+```c++
+TEST(ch7, poc4b)
+{
+    auto circle_drawer = [](Circle const& c)
+    { std::cout << "circle(" << c.radius() << ")\n"; };
+
+    std::vector<Shape_const_ref> shapes {};
+    Circle c1 {3.14};
+    Circle c2 {4.15};
+    shapes.emplace_back(Shape_const_ref {c1, circle_drawer});
+    shapes.emplace_back(Shape_const_ref {c2, circle_drawer});
+
+    for (auto const& shape : shapes)
+        draw(shape);
+
+    std::string_view expected {
+        "circle(3.14)\n"
+        "circle(4.15)\n"
+    };
+}
+```
+
+[The following code results in undefined behavior.]
+
+```c++
+TEST(ch7, poc4a)
+{
+    auto circle_drawer = [](Circle const& c)
+    { std::cout << "circle(" << c.radius() << ")\n"; };
+
+    std::vector<Shape_const_ref> shapes {};
+    shapes.emplace_back(Shape_const_ref {Circle {3.14}, circle_drawer});
+    shapes.emplace_back(Shape_const_ref {Circle {4.15}, circle_drawer});
+
+    for (auto const& shape : shapes)
+        draw(shape);
+
+    // undefined behavior
+}
+```
