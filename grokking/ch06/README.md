@@ -283,8 +283,8 @@ We need a way to set the price on a shopping cart item, which is represented wit
 If we copy all of the keys and values into an empty object, we’ve effectively made a copy. This method is called `Object.assign()`.
 
 ```
-| Copy-on-write
-|
+| Copy-on-write                             | Original
+|                                           |
 | function set_price(item, new_price) {     | function set_price(item, new_price) {
 |   var copy = Object.assign({}, item);     |
 |   copy.price = new_price;                 |   item.price = new_price
@@ -292,5 +292,53 @@ If we copy all of the keys and values into an empty object, we’ve effectively 
 | }                                         | }
 ```
 
+## JavaScript objects at a glance
+
+JavaScript’s Objects are very much like hash maps or associative arrays that you find in other languages. Objects in JavaScript are collections of key/value pairs, where the keys are unique. The keys are always strings, but the values can be any type. Here are the operations we will use in our examples:
+
+Suppose you have an object:
+
+```javascript
+var o = {a: 1, b: 2};
+```
+
+then
+
+| What you want             | Operation                 | Eval              | `o`
+|---------------------------|---------------------------|-------------------|----
+| lookup by `[key]`         | `o["a"]`                  | `1`               | `{a: 1, b: 2}`
+| lookup by `.key`          | `o.a`                     | `1`               | `{a: 1, b: 2}`
+| set value for `[key]`     | `o["a"] = 7`              | `7`               | `{a: 7, b: 2}`
+| set value for `.key`      | `o.c = 10`                | `10`              | `{a: 7, b: 2, c: 10}`
+| remove a key/value pair   | `delete o["a"]`           | `true`            | `{b: 2}` 
+| copy an object            | `Object.assign({}, o)`    | `{a: 1, b: 2}`    | `{a: 1, b: 2}`
+| list the keys             | `Object.keys(o)`          | `["a", "b"]`      | `{a: 1, b: 2}`
 
 
+Write a function `object_set()` that is a copy-on-write version of the object assignment operator. Example: `o["price"] = 37;`
+
+```
+| Copy-on-write                                 | Wrapping
+|                                               |
+| function object_set(object, key, value) {     | function object_set(object, key, value) {
+|   var copy = Object.assign({}, object);       |
+|   copy[key] = value;                          |   return object[key] = value;
+|   return copy;                                |
+| }                                             | }
+```
+
+Write a copy-on-write version of the `delete` operator, which removes a key from an object.
+Example: `delete o["a"]`.
+
+```
+| Copy-on-write combined                        | Wrapping
+|                                               |
+| function object_del(object, key) {            | function object_del(object, key) {
+|   var copy = Object.assign({}, object);       |
+|   var eval = delete copy[key];                |   delete object[key];
+|   return {                                    |
+|     eval: eval,                               |
+|     result: copy                              |   return object;
+|   };                                          |
+| }                                             | }
+```
