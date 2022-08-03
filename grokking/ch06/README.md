@@ -342,3 +342,114 @@ Example: `delete o["a"]`.
 |   };                                          |
 | }                                             | }
 ```
+
+## What gets copied?
+
+```
+|   | shopping_cart = set_price_by_name(shopping_cart, "t-shirt", 13);
+|   | 
+|   | function set_price_by_name(cart, name, price) {
+| 1 |   var copy = cart.slice();
+|   |   for (var i = 0; i < copy.length; i++) {
+|   |     if (copy[i].name == name)
+| 2 |       copy[i] = set_price(copy[i].price);
+|   |   }
+|   |   return copy;
+|   | }
+|   | 
+| 3 | function set_price(item, new_price) {
+|   |   var copy = Object.assign({}, item);
+|   |   copy.price = new_price;
+|   |   return copy;
+|   | }
+```
+
+1. copy the array `shopping_cart`
+2. we call `set_price()` only once, when the loop find the t-shirt
+3. copy the object
+
+Let’s do a quick vocabulary review of some words we’ve already seen:
+
+- *Nested data*: Data structures inside data structures; we can talk about the inner data structure and the top-level data structure
+- *Shallow copy*: Copying only the top-level data structure in nested data
+- *Structural sharing*: Two nested data structures referencing the same inner data structure
+
+## Visualizing shallow copies and structural sharing
+
+We started out with a shopping cart (one array) with three items (three objects). That’s four pieces of data total.
+
+```
+| Addr | Object
+|      |
+|  r1  | [ o1, o2, o3 ]
+|  o1  | {name: "shoes", price: 10}
+|  o2  | {name: "socks", price: 3}
+|  o3  | {name: "t-shirt", price 7}
+```
+
+We then made a shallow copy of the shopping cart: `| 1 | var copy = cart.slice();`.
+
+```
+| Addr | Object
+|      |
+|  r1  | [ o1, o2, o3 ]
+|  o1  | {name: "shoes", price: 10}
+|  o2  | {name: "socks", price: 3}
+|  o3  | {name: "t-shirt", price 7}
+|  r2  | [ o1, o2, o3 ]
+```
+
+The loop eventually found the t-shirt and called `set_price()` on it.
+
+```
+| 3 | function set_price(item, new_price) {
+|   |   var copy = Object.assign({}, item);
+|   |   copy.price = new_price;
+|   |   return copy;
+|   | }
+```
+
+That function created a shallow copy of the t-shirt Object and changed the price to `13`.
+
+```
+| Addr | Object
+|      |
+|  r1  | [ o1, o2, o3 ]
+|  o1  | {name: "shoes", price: 10}
+|  o2  | {name: "socks", price: 3}
+|  o3  | {name: "t-shirt", price 7}
+|  r2  | [ o1, o2, o3 ]
+|  o4  | {name: "t-shirt", price 13}
+```
+
+`set_price()` returned that copy, and `set_price_by_name()` assigned it in the array in place of the original t-shirt.
+
+```
+|   | function set_price_by_name(cart, name, price) {
+| 1 |   var copy = cart.slice();
+|   |   for (var i = 0; i < copy.length; i++) {
+|   |     if (copy[i].name == name)
+| 2 |       copy[i] = set_price(copy[i].price);
+|   |   }
+|   |   return copy;
+|   | }
+```
+
+Although we had four pieces of data at the start (one array `r1` and three objects: `o1`, `o2`, and `o3`), only two of them (one array `r1 -> r2` and one object `o3 -> o4`) had to be copied. The other objects (`o2` and `o3`) weren’t modified so we didn’t copy them.
+
+```
+| Addr | Object
+|      |
+|  r1  | [ o1, o2, o3 ]
+|  o1  | {name: "shoes", price: 10}
+|  o2  | {name: "socks", price: 3}
+|  o3  | {name: "t-shirt", price 7}
+|  r2  | [ o1, o2, o4 ]
+|  o4  | {name: "t-shirt", price 13}
+```
+
+The original array and the copy are both pointing to everything that hasn’t changed. That’s the *structural sharing* that we’ve talked about before.
+
+## Conclusion
+
+In this chapter we learned the ins and outs of the copy-on-write discipline. Although it’s the same discipline you find in languages like Clojure and Haskell, in JavaScript you have to do all the work yourself. That’s why it’s convenient to wrap it up with some utility functions that handle everything for you. If you stick with those wrapper functions, you’ll be fine. Sticking with it is why it’s called a *discipline*.
