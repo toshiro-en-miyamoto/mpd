@@ -398,3 +398,79 @@ Answer the following questions, which all have to do with one extreme or another
 3. What does `reduce()` return when you pass it an empty array?
     - Answer: `reduce()` returns a copy of the initial value passed to it.
     - In `for_each()`, the function passed to it will never called. Therefore, the copy of the initial value defined in `reduce()` will not change, and `reduce()` return the copy.
+4. What does `map()` return if the function you pass to it just returns its argument?
+    - Answer: `map()` returns a copy of the array you passed to it.
+    - `new_array.push(item)` in `map()` pushes the item retrieved from the original array.
+5. What does `filter()` return if the function you pass to it always returns `true`?
+    - Answer: `filter()` returns a copy of the array you passed to it.
+    - `predicate(element)` in `filter()` always evaluates `true`, therefore `new_array.push(element)` runs for all elements, which are the elements of the array you passed to `filter()`.
+6. What does `filter()` return if the function you pass to it always returns `false`?
+    - Answer: `filter()` returns an empty array.
+    - `predicate(element)` in `filter()` always evaluates `false`, therefore `new_array.push(element)` never runs and the `new_array` is left empty.
+
+You can write `map()` in terms of `reduce()`.
+
+```javascript
+function reduce(array, init, bi_op) {
+    var accum = init;
+    for_each(array, function(element) {
+        accum = bi_op(accum, element);
+    });
+    return accum;
+}
+
+function map(array, mapping) {
+    var new_array = [];
+    for_each(new_array, function(element) {
+        var item = mapping(element);
+        new_array.push(item);
+    });
+    return new_array;
+}
+
+function map_by_reduce(array, mapping) {
+    return reduce(array, [], function(accum, element) {
+        accum.push(mapping(element));
+        return accum;
+    });
+}
+```
+
+You can write `filter()` in terms of `reduce()`.
+
+```javascript
+function reduce(array, init, bi_op) {
+    var accum = init;
+    for_each(array, function(element) {
+        accum = bi_op(accum, element);
+    });
+    return accum;
+}
+
+function filter(array, predicate) {
+    var new_array = [];
+    for_each(array, function(element) {
+        if(predicate(element))
+            new_array.push(element);
+    });
+    return new_array;
+}
+
+function filter_by_reduce(array, predicate) {
+    return reduce(array, [], function(accum, element) {
+        if (predicate(element)) accum.push(elememt);
+        return accum;
+    });
+}
+```
+
+The preceeding implementations of `map_by_reduce()` and `filter_by_reduce()`. Both code mutates the returned array at each step (by calling `push()`). The mutating one is much more efficient. They are all still calculations, though, because it only mutates a local value, then doesn’t mutate it after returning it.
+
+We said earlier that the function you pass to `reduce()` should be a calculation. In the mutating operations, we have violated this rule. However, we also can clearly see that in these functions, the mutation only happens in a local context. We are sure `map_by_reduce()` and `filter_by_reduce()` are still calculations.
+
+These examples show that the rules (in this case, the function you pass to `reduce()` should be a calculation) are more like guidelines. They should be followed by default. Use caution and judgment when you violate them.
+
+## Summary
+
+- The three most common functional tools are `map()`, `filter()`, and `reduce()`. Nearly every functional programmer uses them often.
+- `map()`, `filter()`, and `reduce()` are essentially specialized for loops over arrays. They can replace those for loops and add *clarity* because they are special-purpose.
