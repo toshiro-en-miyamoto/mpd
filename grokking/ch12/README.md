@@ -129,7 +129,7 @@ map(customers, function(customer) {
 We need an object containing the first name, last name, and address of each customer. Using map(), write the code to generate this array of objects.
 
 ```javascript
-mao(cuastomers, function(customer) {
+map(customers, function(customer) {
     return {
         first_name: customer.first_name,
         last_name:  customer.last_name,
