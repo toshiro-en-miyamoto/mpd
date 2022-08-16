@@ -297,17 +297,19 @@ Again, this is an optimization. It will only make a difference if that is the bo
 
 ## Refactoring existing for loops to functional tools
 
+The first strategy is simply to read the for loop, figure out what it does, then forget the implementation.
+
 Here is an example code snippet with a nested for loop:
 
 ```javascript
 var answer = [];
-var window = 5;
+var size = 5;
 
 for (var i = 0; i < array.length; i++) {
     var sum = 0;
     var count = 0;
-    for (var w = 0; w < window; w++) {
-        var idx = i + w;
+    for (var j = 0; j < size; j++) {
+        var idx = i + j;
         if (idx < array.length) {
             sum += array[idx];
             count += 1;
@@ -330,14 +332,14 @@ The inner loop is looping through a small range of elements in `array`. `.slice(
 
 ```javascript
 var answer = [];
-var window = 5;
+var size = 5;
 
 for (var i = 0; i < array.length; i++) {
     var sum = 0;
     var count = 0;
-    var sub_array = array.slice(i, i + window);     // replaced
-    for (var w = 0; w < sub_array.length; w++) {    // replaced
-        sum += sub_array[w];                        // replaced
+    var sub_array = array.slice(i, i + size);       // replaced
+    for (var j = 0; j < sub_array.length; j++) {    // replaced
+        sum += sub_array[j];                        // replaced
         count += 1;
     }
     answer.push(sum / count);
@@ -350,10 +352,10 @@ Now that we’ve built that subarray, we are looping over an entire array. That 
 
 ```javascript
 var answer = [];
-var window = 5;
+var size = 5;
 
 for (var i = 0; i < array.length; i++) {
-    var sub_array = array.slice(i, i + window);
+    var sub_array = array.slice(i, i + size);
     answer.push(average(sub_array));                // replaced
 }
 
@@ -375,7 +377,7 @@ The trouble is that we want to loop over the *indices*, not the values of the ar
 
 ```javascript
 for (var i = 0; i < array.length; i++) {
-    var sub_array = array.slice(i, i + window);
+    var sub_array = array.slice(i, i + size);
     answer.push(average(sub_array));
 }
 ```
@@ -389,19 +391,11 @@ It may be hard (or impossible) to loop over the indices in the one step we alrea
 var indices = [];
 for (var i = 0; i < array.length; i++) indices.push(i);
 
-var window = 5;
-
+var size = 5;
 var answer = map(indices, function(i) {
-    var sub_array = array.slice(i, i + window);
+    var sub_array = array.slice(i, i + size);
     return average(sub_array);
 });
-
-function average(numbers) {
-    var total = reduce(numbers, 0, function(accum, number) {
-        return accum + number;
-    });
-    return total / numbers.length;
-}
 ```
 
 We're dowing two things in the callback to `map()`: making a subarray and averaging it. Clearly this could be two separate steps.
@@ -410,40 +404,25 @@ We're dowing two things in the callback to `map()`: making a subarray and averag
 var indices = [];
 for (var i = 0; i < array.length; i++) indices.push(i);
 
-var window = 5;
-
+var size = 5;
 var windows = map(indices, function(i) {
-    return array.slice(i, i + window);
+    return array.slice(i, i + size);
 });
 
 var answer = map(windows, average);
-
-function average(numbers) {
-    var total = reduce(numbers, 0, function(accum, number) {
-        return accum + number;
-    });
-    return total / numbers.length;
-}
 ```
 
 The last thing to do is to extract the loop that generates indices into a helper function `range()`.
 
 ```javascript
 var indices = range(0, array.length);
-var window = 5;
 
+var size = 5;
 var windows = map(indices, function(i) {
-    return array.slice(i, i + window);
+    return array.slice(i, i + size);
 });
 
 var answer = map(windows, average);
-
-function average(numbers) {
-    var total = reduce(numbers, 0, function(accum, number) {
-        return accum + number;
-    });
-    return total / numbers.length;
-}
 
 function range(start, end) {
     var ret = [];
@@ -458,6 +437,267 @@ We’ve replaced all the for loops with a chain of functional tools.
 
 ## Comparing functional to imperative code
 
+Original imperative code is:
 
+```javascript
+var answer = [];
+var size = 5;
+
+for (var i = 0; i < array.length; i++) {
+    var sum = 0;
+    var count = 0;
+    for (var j = 0; j < size; j++) {
+        var idx = i + j;
+        if (idx < array.length) {
+            sum += array[idx];
+            count += 1;
+        }
+    }
+    answer.push(sum / count);
+}
+```
+
+Code using functional tools is:
+
+```javascript
+var indices = range(0, array.length);
+
+var size = 5;
+var windows = map(indices, function(i) {
+    return array.slice(i, i + size);
+});
+
+var answer = map(windows, average);
+```
+
+We ended up with a three-step process where each step is clear. Actually, we can write the steps in English.
+
+Moving Average:
+
+1. Given a list of numbers, you generate a "window" around each number.
+2. Then you calculate the average of each window.
+
+Here are the functional tools we used:
+
+```javascript
+function average(numbers) {
+    var total = reduce(numbers, 0, function(accum, number) {
+        return accum + number;
+    });
+    return total / numbers.length;
+}
+
+function map(array, mapping) {
+    var new_array = [];
+    for_each(new_array, function(element) {
+        var item = mapping(element);
+        new_array.push(item);
+    });
+    return new_array;
+}
+
+function reduce(array, init, bi_op) {
+    var accum = init;
+    for_each(array, function(element) {
+        accum = bi_op(accum, element);
+    });
+    return accum;
+}
+
+function for_each(array, work_with) {
+    for(var i = 0; i < array.length; i++) {
+        var item = array[i];
+        work_with(item);
+    }
+}
+
+function range(start, end) {
+    var ret = [];
+    for (var i = start; i < end; i++) {
+        ret.push(i);
+        return ret;
+    }
+}
+```
+
+## Summary of chaining tips
+
+If you find the for loop is working over a subset of the data, try to break that data out into its own array. Then `map()`, `filter()`, and `reduce()` can make short work of it.
+
+Some people are really good at finding elegant and clear ways of solving problems using functional tools. How did they get that way? They tried lots of things. They practiced. They challenged themselves to find new ways to combine them.
+
+Original imperative code is:
+
+```javascript
+function shoes_and_socks_inventory(products) {
+    var inventory = 0;
+    for (var p = 0; p < products.length; p++) {
+        var product = products[p];
+        if (product.type === "shoes" || product.type === "socks") {
+            inventory += product.number_in_inventory;
+        }
+    }
+    return inventory;
+}
+```
+
+Refactoring with functional tools:
+
+```javascript
+function shoes_and_socks_inventory(products) {
+    var shoes_and_socks = filter(products, function(product) {
+        return (product.type === "shoes" || product.type === "socks");
+    });
+    var inventory = reduce(shoes_and_socks, 0, function(accum, product) {
+        return accum + product.number_in_inventory;
+    });
+    return inventory;
+}
+```
+
+## Many other functional tools
+
+### `pluck()` just pulls out a field
+
+```javascript
+function pluck(array, field) {
+    return map(array, function(object) {
+        return object[field];
+    });
+}
+
+var prices = pluck(products, 'price');
+```
+
+### `invoke_map()`
+
+```javascript
+function invoke_map(array, method) {
+    return map(array, function(object) {
+        return object[method]();
+    });
+}
+```
+
+### `concat()` unnests arrays inside of an array
+
+```javascript
+function concat(arrays) {
+    var ret = [];
+    for_each(arrays, function(array) {
+        for_each(array, function(element) {
+            ret.push(element);
+        });
+    });
+    return ret;
+}
+
+var purchases = pluck(customers, 'purchases');
+var all_purchases = concat(purchases);
+```
+
+```javascript
+function concat_map(array, f) {         // a.k.a. flat_map()
+    return concat(map(array, f));
+}
+```
+
+### `frequencies_by()` counts the key
+
+```javascript
+function frequencies_by(array, f) {
+    var ret = {};
+    for_each(array, function(element) {
+        var key = f(element);
+        ret[key] ? ret[key] += 1 : ret[key] = 1;
+    });
+    return ret;
+}
+
+var how_many = frequencies_by(products, function(product) {
+    return product.type;
+});
+
+it('should be 4', function() {
+    assert.equal(how_many['ties'], 4);
+});
+```
+
+### `group_by()` returns a hash map
+
+```javascript
+function group_by(array, f) {
+    var ret = {};
+    for_each(array, function(element) {
+        var key = f(element);
+        ret[key] ? ret[key].push(element) : ret[key] = [element];
+    });
+    return ret;
+}
+
+var groups = group_by(range(0, 10), is_even);
+it ('shoud have even and odd arrays', function() {
+    assert.equal(groups['true'],  [0, 2, 4, 6, 8]);
+    assert.equal(groups['false'], [1, 3, 5, 7, 9]);
+});
+```
+
+## JavaScript conveniences
+
+Original code using functional tools is:
+
+```javascript
+var indices = range(0, array.length);
+
+var size = 5;
+var windows = map(indices, function(i) {
+    return array.slice(i, i + size);
+});
+
+var answer = map(windows, average);
+```
+
+JavaScript has `.map()` method on class array, [...] that means you can use method chaining instead of assigning them to intermediate variables.
+
+```javascript
+var size = 5;
+var answer = 
+range(0, array.length)
+.map(function(i) { return array.slice(i, i + size); })
+.map(average);
+```
+
+JavaScript has a lot of fancy syntax for defining inline functions.
+
+```javascript
+var size = 5;
+var answer = 
+range(0, array.length)
+.map(i => array.slice(i, i + size))
+.map(average);
+```
+
+## reduce() for building values
+
+Another use for `reduce()` is for building a value.
+
+Let’s say we lost the user’s shopping cart. Luckily, we have logged all of the items the user has added to their cart in an array. It looks like this:
+
+```
+var items_added = ["shirt", "shoes", "shirt", "socks", "hat", ….];
+```
+
+This is the perfect use for `reduce()`. It’s iterating over an array and combining its elements into a single value. In this case, the single value is the shopping cart.
+
+```javascript
+var shopping_cart = reduce(item_added, {}, function(cart, item) {
+    if(!cart[item]) {
+        return add_item(cart, {name: item, quantity: 1, price: price_lookup(item)});
+    } else {
+        var quantity = cart[item].quantity;
+        return set_field_by_name(cart, item, ‘quantity’, quantity + 1);
+    }
+});
+```
 
 
