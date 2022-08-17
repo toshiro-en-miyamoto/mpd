@@ -692,7 +692,10 @@ This is the perfect use for `reduce()`. It’s iterating over an array and combi
 ```javascript
 var shopping_cart = reduce(item_added, {}, function(cart, item) {
     if(!cart[item]) {
-        return add_item(cart, {name: item, quantity: 1, price: price_lookup(item)});
+        return add_item(
+            cart,
+            { name: item, quantity: 1, price: price_lookup(item) }
+        );
     } else {
         var quantity = cart[item].quantity;
         return set_field_by_name(cart, item, ‘quantity’, quantity + 1);
@@ -700,4 +703,47 @@ var shopping_cart = reduce(item_added, {}, function(cart, item) {
 });
 ```
 
+## Getting creative with data representation
 
+We want the two cases, add and remove.
+
+```javascript
+var item_ops = [
+    ['add', "shirt"],
+    ['add', "shoes"],
+    ['remove', "shirt"],
+    ['add', "socks"],
+    ['remove', "hat"]
+];
+
+var shopping_cart = reduce(item_ops, {}, function(cart, item_op) {
+    var op = item_op[0];
+    var item = item_op[1];
+    if (op === 'add') return add_one(cart, item);
+    if (op === 'remove') return remove_one(cart, item);
+});
+
+function add_one(cart, item) {
+    if (!cart[item])
+        return add_item(
+            cart,
+            { name: item, quantity: 1, price: price_lookup(item) }
+        );
+    else {
+        var quantity = cart[item].quantity;
+        return set_field_by_name(cart, item, 'quantity', quantity + 1)
+    }
+}
+
+function remove_one(cart, item) {
+    if (!cart[item])
+        return cart;
+    else {
+        var quantity = cart[item].quantity;
+        if (quantity === 1)
+            return remove_item_by_name(cart, item);
+        else
+            return set_field_by_name(cart, item, 'quantity', quantity - 1);
+    }
+}
+```
