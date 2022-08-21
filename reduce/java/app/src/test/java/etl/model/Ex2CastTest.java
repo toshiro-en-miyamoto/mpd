@@ -1,7 +1,8 @@
 package etl.model;
 
-public interface Ex2Cast {
-    static String text
+public interface Ex2CastTest
+{
+    static String csv
     // The Bridges of Madison County
     // Clint Eastwood, Robert
     // Meryl Streep, Francesca

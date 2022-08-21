@@ -1,7 +1,8 @@
 package etl.model;
 
-public interface Ex2Actor {
-    static String text
+public interface Ex2ActorTest
+{
+    static String csv
     = "bf6edc9b,Anne Hathaway,1982-11-12,\n"
     + "b18c86f9,Clint Eastwood,1930-05-31,\n"
     + "1d1aac52,Meryl Streep,1949-06-22,\n"

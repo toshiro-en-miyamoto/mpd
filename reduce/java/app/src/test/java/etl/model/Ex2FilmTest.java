@@ -1,7 +1,8 @@
 package etl.model;
 
-public interface Ex2Film {
-    static String text
+public interface Ex2FilmTest
+{
+    static String csv
     = "e59ef957,The Deer Hunter,1978\n"
     + "e26705b0,\"Good Morning, Vietnam\",1987\n"
     + "615df8f4,The Bridges of Madison County,1995\n"

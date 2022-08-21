@@ -1,7 +1,8 @@
 package etl.model;
 
-public interface Ex2Movie {
-    static String text
+public interface Ex2MovieTest
+{
+    static String csv
     = "1,1,The Deer Hunter,1978\n"
     + "2,1,1,Robert De Niro,Mike,35\n"
     + "2,1,2,Meryl Streep,Linda,29\n"
