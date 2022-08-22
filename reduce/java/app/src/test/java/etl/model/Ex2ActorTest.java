@@ -1,6 +1,6 @@
 package etl.model;
 
-public interface Ex2ActorTest
+public class Ex2ActorTest
 {
     static String csv
     = "bf6edc9b,Anne Hathaway,1982-11-12,\n"

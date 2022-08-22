@@ -1,6 +1,6 @@
 package etl.model;
 
-public interface Ex2FilmTest
+public class Ex2FilmTest
 {
     static String csv
     = "e59ef957,The Deer Hunter,1978\n"
