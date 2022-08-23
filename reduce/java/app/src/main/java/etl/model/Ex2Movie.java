@@ -1,11 +1,14 @@
 package etl.model;
 
+import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.time.Year;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.csv.CSVRecord;
 
+import etl.util.CloseableSupplier;
 import etl.util.IntRange;
 import etl.util.ModelReader;
 import etl.util.TextHelper;
@@ -27,6 +30,20 @@ public interface Ex2Movie
          */
         public static final IntRange VALID_RANGE_RecordType
         = IntRange.lower(FILM.value()).upper(CAST.value());
+
+        /**
+         * Transforms an int to the corresponding constant
+         * @param value of a constant
+         * @return      the matched constant or {@code Optional.empty()} if not matched
+         */
+        public static Optional<RecordType> of(int value)
+        {
+            switch (value) {
+            case 1: return Optional.of(FILM);
+            case 2: return Optional.of(CAST);
+            default: return Optional.empty();
+            }
+        }
 
         /**
          * Returns the value of the enum constant.
@@ -64,15 +81,6 @@ public interface Ex2Movie
             String role_name,
             String actor_then_age
         ) {}
-
-        static Optional<RecordType> record_type(final CSVRecord csv)
-        {
-            final var record_type_value = TextHelper.<Integer>parse(
-                csv.get(0),
-                Integer::parseInt
-            ).orElse(null);
-            return Optional.empty();
-        }
     }
 
     /**
@@ -170,6 +178,130 @@ public interface Ex2Movie
 
     interface Extracting
     {
+        /**
+         * Transforms a Text.Film record to a Model.Film record.
+         * @param text a Text.Film record
+         * @return     a Model.Film record
+         */
+        static Model.Film model(final Text.Film text)
+        {
+            // An invalid Text yeilds an invalid Model
+            if (text == null) return null;
+
+            // String  name
+            final var name_length_exclusive
+            = Model.Film.VALID_LENGTH_RANGE_name.upper() + 1;
+
+            final var name
+            = text.name == null ? null
+            : text.name.length() < name_length_exclusive
+            ? text.name
+            : text.name.substring(0, name_length_exclusive);
+
+            // Year    release
+            final var release = TextHelper.<Year>parse(
+                text.release,
+                year -> Year.parse(year)
+            ).orElse(null);
+
+            // mapping Text.Film to Model.Film
+            final Model.Film model = new Model.Film(
+                name,
+                release
+            );
+
+            // a null represents an invalid Model
+            return model.isValid() ? model : null;
+        }
+
+        /**
+         * Transforms a Text.Cast record to a Model.Cast record.
+         * @param text a Text.Cast record
+         * @return     a Model.Cast record
+         */
+        static Model.Cast model(final Text.Cast text)
+        {
+            // An invalid Text yeilds an invalid Model
+            if (text == null) return null;
+
+            // Integer seq_cast,
+            final var seq = TextHelper.parse(
+                text.seq_cast,
+                Integer::parseInt
+            ).orElse(null);
+
+            // String  actor_name,
+            final var actor_name_length_exclusive
+            = Model.Cast.VALID_LENGTH_RANGE_actor_name.upper() + 1;
+
+            final var actor_name
+            = text.actor_name == null ? null
+            : text.actor_name.length() < actor_name_length_exclusive
+            ? text.actor_name
+            : text.actor_name.substring(0, actor_name_length_exclusive);
+
+            // String  role_name,
+            final var role_name_length_exclusive
+            = Model.Cast.VALID_LENGTH_RANGE_role_name.upper() + 1;
+
+            final var role_name
+            = text.role_name == null ? null
+            : text.role_name.length() < role_name_length_exclusive
+            ? text.role_name
+            : text.role_name.substring(0, role_name_length_exclusive);
+
+            // Integer actor_then_age
+            final var age = TextHelper.parse(
+                text.actor_then_age,
+                Integer::parseInt
+            ).orElse(null);
+
+            // mapping Text.Cast to Model.Cast
+            final Model.Cast model = new Model.Cast(
+                seq,
+                actor_name,
+                role_name,
+                age
+            );
+
+            // a null represents an invalid Model
+            return model.isValid() ? model : null;
+        }
+
+        /**
+         * Returns a Stream containing Text.Film records extracted out of the
+         * CSV file the supplier argument is attached to.
+         * @param supplier a Reader attached to a CSV file
+         * @return         a Stream containing Text.Film records
+         */
+        static Stream<Text.Film> texts_film(
+            final CloseableSupplier<Reader> supplier
+        ) {
+            final var texts = ModelReader.stream(
+                supplier,
+                Text.Film.class,
+                Extracting::text_film
+            );
+            return texts;
+        }
+
+        /**
+         * Returns a Stream containing Text.Cast records extracted out of the
+         * CSV file the supplier argument is attached to.
+         * @param supplier a Reader attached to a CSV file
+         * @return         a Stream containing Text.Cast records
+         */
+        static Stream<Text.Cast> texts_cast(
+            final CloseableSupplier<Reader> supplier
+        ) {
+            final var texts = ModelReader.stream(
+                supplier,
+                Text.Cast.class,
+                Extracting::text_cast
+            );
+            return texts;
+        }
+
         /**
          * Transforms the CSVRecord to the Text.Film record.
          * @param csv a CSVRecord instance
