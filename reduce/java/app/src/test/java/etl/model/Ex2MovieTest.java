@@ -2,10 +2,11 @@ package etl.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Year;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -16,7 +17,7 @@ import etl.util.TextHelper;
 
 public class Ex2MovieTest
 {
-    static String csv
+    private static String csv
     = "1,The Deer Hunter,1978\n"
     + "2,1,Robert De Niro,Mike,35\n"
     + "2,2,Meryl Streep,Linda,29\n"
@@ -31,18 +32,59 @@ public class Ex2MovieTest
     + "2,3,Anne Hathaway,Jules,33\n"
     ;
 
+    private static
+    SortedMap<Ex2Movie.Model.Film, List<Ex2Movie.Model.Cast>>
+    expected = new TreeMap<>((f1, f2) -> {
+        return Long.compare(f1.seq_film(), f2.seq_film());
+    });
+
+    static {
+        expected.put(
+            new Ex2Movie.Model.Film(0L,
+                "The Deer Hunter", Year.of(1978)
+            ),
+            List.<Ex2Movie.Model.Cast>of(
+                new Ex2Movie.Model.Cast(1, "Robert De Niro", "Mike", 35),
+                new Ex2Movie.Model.Cast(2, "Meryl Streep", "Linda", 29)
+            )
+        );
+        expected.put(
+            new Ex2Movie.Model.Film(1L,
+                "Good Morning, Vietnam", Year.of(1987)
+            ),
+            List.<Ex2Movie.Model.Cast>of(
+                new Ex2Movie.Model.Cast(1, "Robin Williams", "Adrian", 36)
+            )
+        );
+        expected.put(
+            new Ex2Movie.Model.Film(2L,
+                "The Bridges of Madison County", Year.of(1995)
+            ),
+            List.<Ex2Movie.Model.Cast>of(
+                new Ex2Movie.Model.Cast(1, "Clint Eastwood", "Robert", 57),
+                new Ex2Movie.Model.Cast(2, "Meryl Streep", "Francesca", 46)
+            )
+        );
+        expected.put(
+            new Ex2Movie.Model.Film(3L, "The Intern", Year.of(2015)),
+            List.<Ex2Movie.Model.Cast>of(
+                new Ex2Movie.Model.Cast(1, "Robert De Niro", "Ben", 72),
+                new Ex2Movie.Model.Cast(2, "Rene Russo", "Fiona", 61),
+                new Ex2Movie.Model.Cast(3, "Anne Hathaway", "Jules", 33)
+            )
+        );
+    }
+
     @Test
     void iterating_csv_lines()
     {
-        final var format = CSVFormat.Builder
-        .create()
-        .build()
-        ;
-
-        List<Map<Ex2Movie.Model.Film, List<Ex2Movie.Model.Cast>>> list = new ArrayList<>();
+        SortedMap<Ex2Movie.Model.Film, List<Ex2Movie.Model.Cast>>
+        map = new TreeMap<>((f1, f2) -> {
+            return Long.compare(f1.seq_film(), f2.seq_film());
+        });
 
         try (
-            final var parser = CSVParser.parse(csv, format)
+            final var parser = CSVParser.parse(csv, CSVFormat.DEFAULT)
         ) {
             parser.iterator().forEachRemaining(csv_record -> {
                 TextHelper.parse(
@@ -54,22 +96,31 @@ public class Ex2MovieTest
                     .ifPresent(constant -> {
                         switch (constant) {
                         case FILM:
-                            var text_film = ModelReader.text(
-                                csv_record,
-                                Ex2Movie.Extracting.text_film_ctor
+                            var model_film = Ex2Movie.Extracting.model(
+                                ModelReader.text(
+                                    csv_record,
+                                    Ex2Movie.Extracting.text_film_ctor
+                                )
                             );
-                            var model_film = Ex2Movie.Extracting.model(text_film);
-                            var map = new HashMap<Ex2Movie.Model.Film, List<Ex2Movie.Model.Cast>>();
                             map.put(model_film, new ArrayList<>());
-                            list.add(map);
                             break;
                         case CAST:
+                            var model_cast = Ex2Movie.Extracting.model(
+                                ModelReader.text(
+                                    csv_record,
+                                    Ex2Movie.Extracting.text_cast_ctor
+                                )
+                            );
+                            map.get(map.lastKey()).add(model_cast);
+                            break;
                         default:
                         }
                     });
                 });
             });
         } catch (Exception ex) {}
+
+        assertEquals(expected, map);
     }
 
     @Test

@@ -11,6 +11,7 @@ import org.apache.commons.csv.CSVRecord;
 import etl.util.CloseableSupplier;
 import etl.util.IntRange;
 import etl.util.ModelReader;
+import etl.util.Sequencer;
 import etl.util.TextHelper;
 
 /**
@@ -93,6 +94,7 @@ public interface Ex2Movie
          */
         record Film
         (
+            Long    seq_film,
             String  name,
             Year    release
         ) {
@@ -179,6 +181,11 @@ public interface Ex2Movie
     interface Extracting
     {
         /**
+         * Generates sequence numbers for the Model.Film.
+         */
+        static final Sequencer film_sequence = Sequencer.starting(0);
+
+        /**
          * Transforms a Text.Film record to a Model.Film record.
          * @param text a Text.Film record
          * @return     a Model.Film record
@@ -206,6 +213,7 @@ public interface Ex2Movie
 
             // mapping Text.Film to Model.Film
             final Model.Film model = new Model.Film(
+                film_sequence.next(),
                 name,
                 release
             );
