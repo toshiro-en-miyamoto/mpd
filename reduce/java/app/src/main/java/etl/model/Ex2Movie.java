@@ -11,7 +11,6 @@ import org.apache.commons.csv.CSVRecord;
 import etl.util.CloseableSupplier;
 import etl.util.IntRange;
 import etl.util.ModelReader;
-import etl.util.Sequencer;
 import etl.util.TextHelper;
 
 /**
@@ -19,29 +18,27 @@ import etl.util.TextHelper;
  */
 public interface Ex2Movie
 {
+    static final String
+    KEYWORD_FILM = "1",
+    KEYWORD_CAST = "2";
+
     /**
      * Record types
      */
     enum RecordType
     {
-        FILM(1), CAST(2);
+        FILM(KEYWORD_FILM), CAST(KEYWORD_CAST);
 
         /**
-         * The valid range of {@code RecordType}.
+         * Transforms a {@code String} to the corresponding constant
+         * @param keyword of a constant
+         * @return        the matched constant or {@code Optional.empty()} if not matched
          */
-        public static final IntRange VALID_RANGE_RecordType
-        = IntRange.lower(FILM.value()).upper(CAST.value());
-
-        /**
-         * Transforms an int to the corresponding constant
-         * @param value of a constant
-         * @return      the matched constant or {@code Optional.empty()} if not matched
-         */
-        public static Optional<RecordType> of(int value)
+        public static Optional<RecordType> of(String keyword)
         {
-            switch (value) {
-            case 1: return Optional.of(FILM);
-            case 2: return Optional.of(CAST);
+            switch (keyword) {
+            case KEYWORD_FILM: return Optional.of(FILM);
+            case KEYWORD_CAST: return Optional.of(CAST);
             default: return Optional.empty();
             }
         }
@@ -50,10 +47,10 @@ public interface Ex2Movie
          * Returns the value of the enum constant.
          * @return the value of the enum constant
          */
-        public int value() { return value; }
+        public String keyword() { return keyword; }
 
-        private RecordType(int value) { this.value = value; }
-        private final int value;
+        private RecordType(String keyword) { this.keyword = keyword; }
+        private final String keyword;
     }
 
     /**
@@ -61,6 +58,11 @@ public interface Ex2Movie
      */
     interface Text
     {
+        /**
+         * The index of the record type field in Text.Film and Text.Cast records.
+         */
+        static final int INDEX_RECORD_TYPE = 0;
+
         /**
          * Ex2Movie.Text.Film record
          */
@@ -77,7 +79,6 @@ public interface Ex2Movie
         record Cast
         (
             String record_type,
-            String seq_cast,
             String actor_name,
             String role_name,
             String actor_then_age
@@ -125,7 +126,6 @@ public interface Ex2Movie
          */
         record Cast
         (
-            Integer seq_cast,
             String  actor_name,
             String  role_name,
             Integer actor_then_age
@@ -161,10 +161,7 @@ public interface Ex2Movie
             boolean isValid()
             {
                 boolean validity
-                =  seq_cast != null
-                && VALID_RANGE_seq_cast.covers(seq_cast)
-
-                && actor_name != null
+                = actor_name != null
                 && VALID_LENGTH_RANGE_actor_name.covers(actor_name.length())
 
                 && role_name != null
@@ -181,16 +178,11 @@ public interface Ex2Movie
     interface Extracting
     {
         /**
-         * Generates sequence numbers for the Model.Film.
-         */
-        static final Sequencer film_sequence = Sequencer.starting(0);
-
-        /**
          * Transforms a Text.Film record to a Model.Film record.
          * @param text a Text.Film record
          * @return     a Model.Film record
          */
-        static Model.Film model(final Text.Film text)
+        static Model.Film model(final Text.Film text, final Long sequence)
         {
             // An invalid Text yeilds an invalid Model
             if (text == null) return null;
@@ -213,7 +205,7 @@ public interface Ex2Movie
 
             // mapping Text.Film to Model.Film
             final Model.Film model = new Model.Film(
-                film_sequence.next(),
+                sequence,
                 name,
                 release
             );
@@ -231,12 +223,6 @@ public interface Ex2Movie
         {
             // An invalid Text yeilds an invalid Model
             if (text == null) return null;
-
-            // Integer seq_cast,
-            final var seq = TextHelper.parse(
-                text.seq_cast,
-                Integer::parseInt
-            ).orElse(null);
 
             // String  actor_name,
             final var actor_name_length_exclusive
@@ -266,7 +252,6 @@ public interface Ex2Movie
 
             // mapping Text.Cast to Model.Cast
             final Model.Cast model = new Model.Cast(
-                seq,
                 actor_name,
                 role_name,
                 age
