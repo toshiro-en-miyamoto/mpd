@@ -3,14 +3,21 @@ package etl.model;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.time.Year;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import etl.util.CloseableSupplier;
 import etl.util.IntRange;
 import etl.util.ModelReader;
+import etl.util.Sequencer;
 import etl.util.TextHelper;
 
 /**
@@ -177,6 +184,80 @@ public interface Ex2Movie
 
     interface Extracting
     {
+        /**
+         * Builds a Map instance by reading a CSV data.
+         * @param reader a Reader to read the CSV data
+         * @return       a map of {@code <Film, List<Cast>>}
+         */
+        static SortedMap<Ex2Movie.Model.Film, List<Ex2Movie.Model.Cast>> reduce(
+            CloseableSupplier<Reader> reader
+        ) {
+            final var format = CSVFormat.Builder
+            .create()
+            .setIgnoreEmptyLines(false)
+            .setIgnoreSurroundingSpaces(true)
+            .build();
+    
+            try (
+                final var parser = CSVParser.parse(reader.get(), format)
+            ) {
+                final var film_sequence = Sequencer.starting(0);
+    
+                final SortedMap<Ex2Movie.Model.Film, List<Ex2Movie.Model.Cast>>
+                map = parser.stream()
+                .reduce(
+                    new TreeMap<Ex2Movie.Model.Film, List<Ex2Movie.Model.Cast>>
+                    ((f1, f2) -> {
+                        return Long.compare(f1.seq_film(), f2.seq_film());
+                    }),
+                    (accum, csv_record) -> {
+                        Ex2Movie.RecordType.of(
+                            csv_record.get(Ex2Movie.Text.INDEX_RECORD_TYPE)
+                        )
+                        .ifPresentOrElse(constant -> {
+                            switch (constant) {
+                            case FILM:
+                                var model_film = Ex2Movie.Extracting.model(
+                                    ModelReader.text(
+                                        csv_record,
+                                        Ex2Movie.Extracting.text_film_ctor
+                                    ),
+                                    film_sequence.next()
+                                );
+                                accum.put(model_film, new ArrayList<>());
+                                break;
+                            case CAST:
+                                var model_cast = Ex2Movie.Extracting.model(
+                                    ModelReader.text(
+                                        csv_record,
+                                        Ex2Movie.Extracting.text_cast_ctor
+                                    )
+                                );
+                                accum.get(accum.lastKey()).add(model_cast);
+                                break;
+                            }
+                        },
+                        () -> {
+                            // ToDo: call the logging subsystem rather than System.err.
+                            System.err.printf(
+                                "%d: an invalid constant or an empty line\n",
+                                csv_record.getRecordNumber()
+                            );
+                        }
+                        );
+                        return accum;
+                    },
+                    (accum, other) -> {
+                        accum.putAll(other);
+                        return accum;
+                    }
+                );
+                return map;
+            } catch (Exception ex) {
+                return null;
+            }
+        }
+
         /**
          * Transforms a Text.Film record to a Model.Film record.
          * @param text a Text.Film record
