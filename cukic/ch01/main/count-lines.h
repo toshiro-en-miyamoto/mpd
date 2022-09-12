@@ -2,9 +2,9 @@
 #define COUNT_LINES
 
 #include <vector>
-#include <istream>
+#include <sstream>
 
 std::vector<int>
-count_lines_in_streams_imperative(std::vector<std::istream>&);
+count_lines_in_streams_imperative(std::vector<std::istringstream>&);
 
 #endif

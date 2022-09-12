@@ -3,7 +3,7 @@
 #include <iterator>
 
 std::vector<int>
-count_lines_in_streams_imperative(std::vector<std::istream> streams)
+count_lines_in_streams_imperative(std::vector<std::istringstream>& streams)
 {
     std::vector<int> results;
     for (auto& stream : streams) {
