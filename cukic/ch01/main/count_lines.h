@@ -5,6 +5,6 @@
 #include <sstream>
 
 std::vector<int>
-count_lines_in_streams_imperative(std::vector<std::istringstream>&);
+count_lines_in_streams_imperative(std::vector<std::istringstream&>&);
 
 #endif
