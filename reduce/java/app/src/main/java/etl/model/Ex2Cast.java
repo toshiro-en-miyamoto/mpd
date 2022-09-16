@@ -1,6 +1,7 @@
 package etl.model;
 
 import etl.util.IntRange;
+import etl.util.TextHelper;
 
 /**
  * Ex2Cast represents the Cast relationship.
@@ -61,6 +62,49 @@ public interface Ex2Cast
             && VALID_LENGTH_RANGE_role_name.covers(role_name.length())
             ;
             return validity;
+        }
+    }
+
+    /**
+     * Loading provides methods for writing Model records
+     * to CSV files.
+     */
+    interface Loading
+    {
+        /**
+         * Transforms a Model record to a Text record.
+         * @param model a Model record
+         * @return      a Text record
+         */
+        static Ex2Cast.Text text(final Ex2Cast.Model model)
+        {
+            // An invalid Model yields an invalid Text
+            if (model == null || !model.isValid()) return null;
+
+            // mapping Model to Text
+            final var text = new Text(
+                model.film_id,
+                model.actor_id,
+                model.role_name
+            );
+
+            return text;
+        }
+
+        /**
+         * Returns an array of Object instances. The objects are generated
+         * from the Model record's coponents.
+         * @param model a Model record
+         * @return      an array of Object instances
+         */
+        static Object[] values(final Ex2Cast.Model model)
+        {
+            final var text = text(model);
+            final var values = TextHelper.values(
+                text,
+                TextHelper.getters(Text.class)
+            );
+            return values;
         }
     }
 }
