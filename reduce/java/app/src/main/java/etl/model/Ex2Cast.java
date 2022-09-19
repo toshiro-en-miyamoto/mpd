@@ -1,6 +1,7 @@
 package etl.model;
 
 import etl.util.IntRange;
+import etl.util.Sha1;
 import etl.util.TextHelper;
 
 /**
@@ -26,18 +27,20 @@ public interface Ex2Cast
         String film_id,
         String actor_id,
         String role_name
-    ) {
+    )
+        implements Comparable<Model>
+    {
         /**
          * The valid length range of {@code film_id}.
          */
         public static final IntRange VALID_LENGTH_RANGE_film_id
-        = IntRange.lower(8).upper(8);
+        = IntRange.lower(Sha1.HEX_TEXT_LENGTH).upper(Sha1.HEX_TEXT_LENGTH);
 
         /**
          * The valid length range of {@code actor_id}.
          */
         public static final IntRange VALID_LENGTH_RANGE_actor_id
-        = IntRange.lower(8).upper(8);
+        = IntRange.lower(Sha1.HEX_TEXT_LENGTH).upper(Sha1.HEX_TEXT_LENGTH);
 
         /**
          * The valid length range of {@code role_name}.
@@ -63,6 +66,47 @@ public interface Ex2Cast
             ;
             return validity;
         }
+
+        @Override
+        public int compareTo(final Model that)
+        {
+            var comparison =
+            this.film_id != that.film_id
+            ? this.film_id.compareTo(that.film_id)
+            : this.actor_id.compareTo(that.actor_id);
+            
+            return comparison;
+        }
+
+        /**
+         * Indicates whether some other object is "equal to" this one.
+         * @param that the reference object with which to compare
+         * @return     {@code true} if this object is the same os the {@code that}
+         */
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (this.getClass() != obj.getClass()) return false;
+            Model that = (Model) obj;
+
+            final var equality
+            =  this.film_id.equals(that.film_id)
+            && this.actor_id.equals(that.actor_id);
+
+            return equality;
+        }
+
+        /**
+         * Returns a hash code value for the object.
+         * @return a hash code value for this object
+         */
+        @Override
+        public int hashCode()
+        {
+            return film_id.concat(actor_id).hashCode();
+        }
     }
 
     /**
@@ -76,17 +120,43 @@ public interface Ex2Cast
          * @param model a Model record
          * @return      a Text record
          */
-        static Ex2Cast.Text text(final Ex2Cast.Model model)
+        static Text text(final Model model)
         {
             // An invalid Model yields an invalid Text
             if (model == null || !model.isValid()) return null;
 
+            // the film_id field
+            final var max_len_film_id
+            = Model.VALID_LENGTH_RANGE_film_id.upper();
+
+            final var film_id
+            = model.film_id.length() > max_len_film_id
+            ? model.film_id.substring(0, max_len_film_id)
+            : model.film_id
+            ;
+
+            // the actor_id field
+            final var max_len_actor_id
+            = Model.VALID_LENGTH_RANGE_actor_id.upper();
+
+            final var actor_id
+            = model.actor_id.length() > max_len_actor_id
+            ? model.actor_id.substring(0, max_len_actor_id)
+            : model.actor_id
+            ;
+
+            // the role_name field
+            final var max_len_role_name
+            = Model.VALID_LENGTH_RANGE_role_name.upper();
+
+            final var role_name
+            = model.role_name.length() > max_len_role_name
+            ? model.role_name.substring(0, max_len_role_name)
+            : model.role_name
+            ;
+
             // mapping Model to Text
-            final var text = new Text(
-                model.film_id,
-                model.actor_id,
-                model.role_name
-            );
+            final var text = new Text(film_id, actor_id, role_name);
 
             return text;
         }
@@ -97,7 +167,7 @@ public interface Ex2Cast
          * @param model a Model record
          * @return      an array of Object instances
          */
-        static Object[] values(final Ex2Cast.Model model)
+        static Object[] values(final Model model)
         {
             final var text = text(model);
             final var values = TextHelper.values(

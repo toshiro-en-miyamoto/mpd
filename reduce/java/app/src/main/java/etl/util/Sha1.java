@@ -9,17 +9,11 @@ import java.util.HexFormat;
  */
 public class Sha1
 {
-    private static final MessageDigest instance = instance();
-    private static final HexFormat hex_formatter = HexFormat.of();
-
-    private static MessageDigest instance()
-    {
-        try {
-            return MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException ex) {
-            return null;
-        }
-    }
+    /**
+     * Specifies the length of the hexadecimal {@code String}
+     * computed by {@code hex_string()}.
+     */
+    public static final int HEX_TEXT_LENGTH = 40;
 
     /**
      * Computes the 20-byte hash using the {@code string} argument, and
@@ -34,5 +28,17 @@ public class Sha1
         var digest = instance.digest(bytes);
         var hex_string = hex_formatter.formatHex(digest);
         return hex_string;
+    }
+
+    private static final MessageDigest instance = instance();
+    private static final HexFormat hex_formatter = HexFormat.of();
+
+    private static MessageDigest instance()
+    {
+        try {
+            return MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException ex) {
+            return null;
+        }
     }
 }

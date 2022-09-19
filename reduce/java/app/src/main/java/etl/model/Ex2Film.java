@@ -1,15 +1,9 @@
 package etl.model;
 
-import java.io.Reader;
-import java.lang.reflect.Constructor;
 import java.time.Year;
-import java.util.stream.Stream;
 
-import org.apache.commons.csv.CSVRecord;
-
-import etl.util.CloseableSupplier;
 import etl.util.IntRange;
-import etl.util.ModelReader;
+import etl.util.Sha1;
 import etl.util.TextHelper;
 
 /**
@@ -27,18 +21,33 @@ public interface Ex2Film
     ) {}
 
     /**
-     * Ex2Film model record
+     * Ex2Film model record implements the {@code Comparable}
+     * interface (therefore, {@code equals()} and {@code hashCode()}
+     * as well), because we want to sort a list of films.
      */
-    record Model (
+    record Model
+    (
         String id,
         String name,
-        Year release
-    ) {
+        Year   release
+    )
+        implements Comparable<Model>
+    {
+        /**
+         * Constructs a new Film.
+         * @param name    the name of the film
+         * @param release Year when the film was released
+         */
+        public Model(String name, Year release)
+        {
+            this(Sha1.hex_string(name.concat(release.toString())), name, release);
+        }
+
         /**
          * The valid length range of {@code id}.
          */
         public static final IntRange VALID_LENGTH_RANGE_id
-        = IntRange.lower(8).upper(8);
+        = IntRange.lower(Sha1.HEX_TEXT_LENGTH).upper(Sha1.HEX_TEXT_LENGTH);
 
         /**
          * The valid length range of {@code name}.
@@ -47,7 +56,7 @@ public interface Ex2Film
         = IntRange.lower(1).upper(32);
 
         /**
-         * Validate the model record.
+         * Validates the model record.
          * @return {@code true} if the model record is valid
          */
         boolean isValid()
@@ -55,105 +64,121 @@ public interface Ex2Film
             boolean validity
             =  id != null
             && VALID_LENGTH_RANGE_id.covers(id.length())
-
+            
             && name != null
             && VALID_LENGTH_RANGE_name.covers(name.length())
-
+            
             && release != null
             ;
             return validity;
         }
-    }
 
-    /**
-     * Extracting provides methods for reading Text and
-     * Model reocrds from CSV files.
-     */
-    interface Extracting
-    {
         /**
-         * Transforms a Text record to a Model record.
-         * @param text a Text record
-         * @return     a Model record
+         * Compares this model with the specified model for order.
+         * Firstly, the release year is compared. If they are equal,
+         * then the name is compared.
+         * @param that the object to be compared
+         * @return  zero if both the release year and the name are equal;
+         *          if this release year is less or greater than that year,
+         *          then a negative or positive integer returns respectively;
+         *          if the release year is equal and this name
+         *          lexicographically preceedes or follows that name, then
+         *          a negative or positive integer returns respectively.
          */
-        static Ex3Film.Model model(final Ex3Film.Text text)
+        @Override
+        public int compareTo(final Model that)
         {
-            // An invalid Text yeilds an invalid Model
-            if (text == null) return null;
-
-            // the id field
-            final var id_length_exclusive
-            = Model.VALID_LENGTH_RANGE_id.upper() + 1;
-
-            final var id
-            = text.id == null ? null
-            : text.id.length() < id_length_exclusive
-            ? text.id
-            : text.id.substring(0, id_length_exclusive)
-            ;
-
-            // the name field
-            final var name_length_exclusive
-            = Model.VALID_LENGTH_RANGE_name.upper() + 1;
-
-            final var name
-            = text.name == null ? null
-            : text.name.length() < name_length_exclusive
-            ? text.name
-            : text.name.substring(0, name_length_exclusive)
-            ;
-
-            // the release field
-            final var release = TextHelper.<Year>parse(
-                text.release,
-                year -> Year.parse(year)
-            )
-            .orElse(null);
-
-            // mapping Text to Model
-            final Model model = new Model(
-                id,
-                name,
-                release
-            );
-
-            // a null represents an invalid Model
-            return model.isValid() ? model : null;
+            var comparison =
+            this.release != that.release
+            ? this.release.compareTo(that.release)
+            : this.name.compareTo(that.name);
+            
+            return comparison;
         }
 
         /**
-         * Transforms the CSVRecord to the Text record.
-         * @param csv a CSVRecord instance
-         * @return    a Text record
+         * Indicates whether some other object is "equal to" this one.
+         * @param that the reference object with which to compare
+         * @return     {@code true} if this object is the same os the {@code that}
          */
-        static Ex3Film.Text text(final CSVRecord csv)
+        @Override
+        public boolean equals(Object obj)
         {
-            final var text = ModelReader.text(csv, text_ctor);
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (this.getClass() != obj.getClass()) return false;
+            Model that = (Model) obj;
+
+            final var equality = this.id.equals(that.id);
+            return equality;
+        }
+
+        /**
+         * Returns a hash code value for the object.
+         * @return a hash code value for this object
+         */
+        @Override
+        public int hashCode()
+        {
+            return id.hashCode();
+        }
+    }
+
+    /**
+     * Loading provides methods for writing Model records
+     * to CSV files.
+     */
+    interface Loading
+    {
+        /**
+         * Transforms a Model record to a Text record.
+         * @param model a Model record
+         * @return      a Text record
+         */
+        static Text text(final Model model)
+        {
+            // An invalid Model yields an invalid Text
+            if (model == null || !model.isValid()) return null;
+
+            // the id field
+            final var max_len_id = Model.VALID_LENGTH_RANGE_id.upper();
+            final var id
+            = model.id.length() > max_len_id
+            ? model.id.substring(0, max_len_id)
+            : model.id
+            ;
+
+            // the name field
+            final var max_len_name = Model.VALID_LENGTH_RANGE_name.upper();
+            final var name
+            = model.name.length() > max_len_name
+            ? model.name.substring(0, max_len_name)
+            : model.name
+            ;
+
+            // the release field
+            final var release = model.release.toString();
+
+            // mapping Model to Text
+            final var text = new Text(id, name, release);
+
             return text;
         }
 
         /**
-         * The canonical constrctor of this Text record type.
+         * Returns an array of Object instances. The objects are generated
+         * from the Model record's coponents.
+         * @param model a Model record
+         * @return      an array of Object instances
          */
-        static final Constructor<Ex3Film.Text> text_ctor
-        = TextHelper.ctor(Ex3Film.Text.class);
-
-        /**
-         * Returns a Stream containing Model records extracted out of the
-         * CSV file the supplier argument is attached to.
-         * @param supplier a Reader attached to a CSV file
-         * @return         a Stream containing Model records
-         */
-        static Stream<Model> models(
-            final CloseableSupplier<Reader> supplier
-        ){
-            final var models = ModelReader.stream(
-                supplier,
-                Ex3Film.Text.class,
-                Ex3Film.Extracting::text,
-                Ex3Film.Extracting::model
+        static Object[] values(final Model model)
+        {
+            final var text = text(model);
+            final var values = TextHelper.values(
+                text,
+                TextHelper.getters(Text.class)
             );
-            return models;
+            return values;
         }
     }
 }
