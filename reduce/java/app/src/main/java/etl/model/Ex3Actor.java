@@ -2,7 +2,10 @@ package etl.model;
 
 import java.io.Reader;
 import java.lang.reflect.Constructor;
+import java.time.LocalDate;
 import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.csv.CSVRecord;
@@ -13,26 +16,30 @@ import etl.util.ModelReader;
 import etl.util.TextHelper;
 
 /**
- * Ex2Film represents the Film entity.
+ * Ex3Actor represents the Actor entity.
  */
-public interface Ex2Film
+public interface Ex3Actor
 {
     /**
-     * Ex2Film text record
+     * Ex3Actor Text record
      */
-    record Text (
+    record Text
+    (
         String id,
         String name,
-        String release
+        String born,
+        String died
     ) {}
 
     /**
-     * Ex2Film model record
+     * Ex3Actor model record
      */
-    record Model (
+    record Model
+    (
         String id,
         String name,
-        Year release
+        LocalDate born,
+        Year died
     ) {
         /**
          * The valid length range of {@code id}.
@@ -47,7 +54,16 @@ public interface Ex2Film
         = IntRange.lower(1).upper(32);
 
         /**
-         * Validate the model record.
+         * Returns {@code died} as an {@code Optional<Year>}.
+         * @return
+         */
+        public Optional<Year> optional_died()
+        {
+            return Optional.ofNullable(died);
+        }
+
+        /**
+         * Validates the model record.
          * @return {@code true} if the model record is valid
          */
         boolean isValid()
@@ -59,7 +75,9 @@ public interface Ex2Film
             && name != null
             && VALID_LENGTH_RANGE_name.covers(name.length())
 
-            && release != null
+            && born != null
+
+            // the died field is optional
             ;
             return validity;
         }
@@ -71,12 +89,7 @@ public interface Ex2Film
      */
     interface Extracting
     {
-        /**
-         * Transforms a Text record to a Model record.
-         * @param text a Text record
-         * @return     a Model record
-         */
-        static Ex3Film.Model model(final Ex3Film.Text text)
+        static Ex3Actor.Model model(final Ex3Actor.Text text)
         {
             // An invalid Text yeilds an invalid Model
             if (text == null) return null;
@@ -103,9 +116,19 @@ public interface Ex2Film
             : text.name.substring(0, name_length_exclusive)
             ;
 
-            // the release field
-            final var release = TextHelper.<Year>parse(
-                text.release,
+            // the born field
+            final var born = TextHelper.<LocalDate>parse(
+                text.born,
+                date -> LocalDate.parse(
+                    date,
+                    DateTimeFormatter.ISO_LOCAL_DATE
+                )
+            )
+            .orElse(null);
+
+            // the died field
+            final var died = TextHelper.<Year>parse(
+                text.died,
                 year -> Year.parse(year)
             )
             .orElse(null);
@@ -114,7 +137,8 @@ public interface Ex2Film
             final Model model = new Model(
                 id,
                 name,
-                release
+                born,
+                died
             );
 
             // a null represents an invalid Model
@@ -126,7 +150,7 @@ public interface Ex2Film
          * @param csv a CSVRecord instance
          * @return    a Text record
          */
-        static Ex3Film.Text text(final CSVRecord csv)
+        static Ex3Actor.Text text(final CSVRecord csv)
         {
             final var text = ModelReader.text(csv, text_ctor);
             return text;
@@ -135,8 +159,8 @@ public interface Ex2Film
         /**
          * The canonical constrctor of this Text record type.
          */
-        static final Constructor<Ex3Film.Text> text_ctor
-        = TextHelper.ctor(Ex3Film.Text.class);
+        static final Constructor<Ex3Actor.Text> text_ctor
+        = TextHelper.ctor(Ex3Actor.Text.class);
 
         /**
          * Returns a Stream containing Model records extracted out of the
@@ -146,12 +170,12 @@ public interface Ex2Film
          */
         static Stream<Model> models(
             final CloseableSupplier<Reader> supplier
-        ){
+        ) {
             final var models = ModelReader.stream(
                 supplier,
-                Ex3Film.Text.class,
-                Ex3Film.Extracting::text,
-                Ex3Film.Extracting::model
+                Ex3Actor.Text.class,
+                Ex3Actor.Extracting::text,
+                Ex3Actor.Extracting::model
             );
             return models;
         }

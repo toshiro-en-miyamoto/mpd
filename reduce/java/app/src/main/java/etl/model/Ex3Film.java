@@ -13,12 +13,12 @@ import etl.util.ModelReader;
 import etl.util.TextHelper;
 
 /**
- * Ex2Film represents the Film entity.
+ * Ex3Film represents the Film entity.
  */
-public interface Ex2Film
+public interface Ex3Film
 {
     /**
-     * Ex2Film text record
+     * Ex3Film text record
      */
     record Text (
         String id,
@@ -27,7 +27,7 @@ public interface Ex2Film
     ) {}
 
     /**
-     * Ex2Film model record
+     * Ex3Film model record
      */
     record Model (
         String id,

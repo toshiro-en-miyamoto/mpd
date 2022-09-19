@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import etl.model.Ex2Actor;
 import etl.model.Ex2Cast;
-import etl.model.Ex2Film;
+import etl.model.Ex3Film;
 import etl.model.Ex2Movie;
 import etl.util.CloseableSupplier;
 import etl.util.ModelWriter;
@@ -98,7 +98,7 @@ public interface Ex2Mapper
                 final var movies = Ex2Movie.Extracting
                 .reduce(movie_reader);
 
-                final var films = Ex2Film.Extracting
+                final var films = Ex3Film.Extracting
                 .models(film_reader)
                 .collect(Collectors.toList());
 
@@ -132,7 +132,7 @@ public interface Ex2Mapper
          */
         static List<Ex2Cast.Model> casting(
             SortedMap<Ex2Movie.Model.Film, List<Ex2Movie.Model.Cast>> movies,
-            List<Ex2Film.Model> films,
+            List<Ex3Film.Model> films,
             List<Ex2Actor.Model> actors
         ) {
             var casting = movies.entrySet().stream()
@@ -142,7 +142,7 @@ public interface Ex2Mapper
                     films.stream()
                         .filter(film -> film.name().equals(entry.getKey().name()))
                         .findFirst()
-                        .map(Ex2Film.Model::id)
+                        .map(Ex3Film.Model::id)
                         .orElse(null),
                     actors.stream()
                         .filter(actor -> actor.name().equals(cast.actor_name()))

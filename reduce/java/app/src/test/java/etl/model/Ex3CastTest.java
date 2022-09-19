@@ -1,6 +1,6 @@
 package etl.model;
 
-public class Ex2CastTest
+public class Ex3CastTest
 {
     static final String csv
     // The Bridges of Madison County
