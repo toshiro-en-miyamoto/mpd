@@ -18,7 +18,7 @@ public interface Ex2Film
         String id,
         String name,
         String release
-    ) {}
+     ) {}
 
     /**
      * Ex2Film model record implements the {@code Comparable}
@@ -74,7 +74,7 @@ public interface Ex2Film
         }
 
         /**
-         * Compares this model with the specified model for order.
+         * Compares this model with the specified Model for order.
          * Firstly, the release year is compared. If they are equal,
          * then the name is compared.
          * @param that the object to be compared

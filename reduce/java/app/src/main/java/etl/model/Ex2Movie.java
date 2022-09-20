@@ -72,14 +72,71 @@ public interface Ex2Movie
         static final int INDEX_RECORD_TYPE = 0;
 
         /**
-         * Ex2Movie.Text.Film record
+         * Ex2Movie.Text.Film record implements the {@code Comparable}
+         * interface (therefore, {@code equals()} and {@code hashCode()}
+         * as well), because we want to sort a list of films.
          */
         record Film
         (
             String record_type,
             String name,
             String release
-        ) {}
+        )
+            implements Comparable<Film>
+        {
+            /**
+             * Compares this model with the specified Text for order.
+             * Firstly, the release year is compared. If they are equal,
+             * then the name is compared.
+             * @param that the object to be compared
+             * @return  zero if both the release year and the name are equal;
+             *          if this release year is less or greater than that year,
+             *          then a negative or positive integer returns respectively;
+             *          if the release year is equal and this name
+             *          lexicographically preceedes or follows that name, then
+             *          a negative or positive integer returns respectively.
+             */
+            @Override
+            public int compareTo(final Film that)
+            {
+                var comparison =
+                this.release != that.release
+                ? this.release.compareTo(that.release)
+                : this.name.compareTo(that.name);
+                
+                return comparison;
+            }
+    
+            /**
+             * Indicates whether some other object is "equal to" this one.
+             * @param that the reference object with which to compare
+             * @return     {@code true} if this object is the same os the {@code that}
+             */
+            @Override
+            public boolean equals(Object obj)
+            {
+                if (this == obj) return true;
+                if (obj == null) return false;
+                if (this.getClass() != obj.getClass()) return false;
+                Film that = (Film) obj;
+    
+                final var equality
+                =  this.name.equals(that.name())
+                && this.release.equals(that.release)
+                ;
+                return equality;
+            }
+    
+            /**
+             * Returns a hash code value for the object.
+             * @return a hash code value for this object
+             */
+            @Override
+            public int hashCode()
+            {
+                return name.concat(release).hashCode();
+            }
+        }
 
         /**
          * Ex2Movie.Text.Cast record
@@ -107,8 +164,8 @@ public interface Ex2Movie
          * @return       a map of {@code <Film, List<Cast>>}
          */
         static SortedMap<Ex2Film.Model, List<Ex2Cast.Model>> model_map(
-            SortedMap<Text.Film, List<Text.Cast>> text_map,
-            SortedSet<Ex2Actor.Model> actors
+            final SortedMap<Text.Film, List<Text.Cast>> text_map,
+            final SortedSet<Ex2Actor.Model> actors
         ) {
             final SortedMap<Ex2Film.Model, List<Ex2Cast.Model>>
             model_map = text_map.entrySet().stream()
@@ -146,13 +203,48 @@ public interface Ex2Movie
         }
 
         /**
+         * Returns an actor id of the specified name.
+         * @param name   the name of actor to look the specified list for
+         * @param actors a list of actors
+         * @return       the id of matched actor, or null if not found
+         */
+        static String actor_id_by_name(
+            final String name,
+            final SortedSet<Ex2Actor.Model> actors
+        ) {
+            final var actor_id = find_actor_by_name(name, actors)
+            .map(Ex2Actor.Model::id)
+            .orElse(null)
+            ;
+            return actor_id;
+        }
+
+        /**
+         * Returns an actor model.
+         * @param name   the name of actor to look the specified list for
+         * @param actors a list of actors
+         * @return       an Optional with the matched actor or
+         *               an empty Optional if not found
+         */
+        static Optional<Ex2Actor.Model> find_actor_by_name(
+            final String name,
+            final SortedSet<Ex2Actor.Model> actors
+        ) {
+            final var match = actors.stream()
+            .filter(actor -> name.equals(actor.name()))
+            .findFirst()
+            ;
+            return match;
+        }
+
+        /**
          * Collects Ex2Actor.Model instances from
          * {@code SortedMap<Text.Film, List<Text.Cast>>}.
          * @param text_map {@code SortedMap<Text.Film, List<Text.Cast>>}
          * @return a sorted set of Ex2Actor.Model instances
          */
         static SortedSet<Ex2Actor.Model> actors(
-            SortedMap<Text.Film, List<Text.Cast>> text_map
+            final SortedMap<Text.Film, List<Text.Cast>> text_map
         ) {
             final var actors = text_map.entrySet().stream()
             .flatMap(entry -> entry.getValue().stream()
