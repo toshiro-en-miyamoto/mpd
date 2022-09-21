@@ -35,44 +35,35 @@ public interface Ex2Actor
         implements Comparable<Model>
     {
         /**
-         * Constructs a new Actor.
-         * @param name the name of the actor
-         * @param born Year when the actor was born
-         */
-        public Model(String name, Year born)
-        {
-            this(Sha1.hex_string(name.concat(born.toString())), name, born);
-        }
-
-        /**
-         * The valid length range of {@code id}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_id
-        = IntRange.lower(Sha1.HEX_TEXT_LENGTH).upper(Sha1.HEX_TEXT_LENGTH);
-
-        /**
          * The valid length range of {@code name}.
          */
         public static final IntRange VALID_LENGTH_RANGE_name
         = IntRange.lower(1).upper(32);
 
         /**
-         * Validates the model record.
-         * @return {@code true} if the model record is valid
+         * Returns a new Ex2Actor.Model instance.
+         * @param name    the name of the film
+         * @param born Year when the actor was born
+         * @return  a valid Model instance or {@code null} if
+         *          the {@code name} argument is null,
+         *          the {@code born} argument is null, or
+         *          the {@code name} length < 1 byte or > 32 bytes
          */
-        boolean isValid()
+        public static Model instance(String name, Year born)
         {
-            boolean validity
-            =  id != null
-            && VALID_LENGTH_RANGE_id.covers(id.length())
+            if (name == null || born == null) return null;
+            if (name.length() < VALID_LENGTH_RANGE_name.lower()) return null;
+            if (name.length() > VALID_LENGTH_RANGE_name.upper()) return null;
 
-            && name != null
-            && VALID_LENGTH_RANGE_name.covers(name.length())
-
-            && born != null
-            ;
-            return validity;
+            var instance = new Model(
+                Sha1.hex_string(name.concat(born.toString())),
+                name, born
+            );
+            return instance;
         }
+
+        // boolean isValid() is not defined because the constuctor guarantees
+        // validity of model instances
 
         /**
          * Compares this model with the specified model for order.
@@ -83,17 +74,16 @@ public interface Ex2Actor
          *          if this born year is less or greater than that year,
          *          then a negative or positive integer returns respectively;
          *          if the born year is equal and this name
-         *          lexicographically preceedes or follows that name, then
+         *          lexicographically precedes or follows that name, then
          *          a negative or positive integer returns respectively.
          */
         @Override
         public int compareTo(final Model that)
         {
-            var comparison =
-            this.born != that.born
-            ? this.born.compareTo(that.born)
-            : this.name.compareTo(that.name);
-            
+            var comparison = this.born.equals(that.born)
+            ? this.name.compareTo(that.name)
+            : this.born.compareTo(that.born);
+
             return comparison;
         }
 
@@ -139,29 +129,10 @@ public interface Ex2Actor
         static Text text(final Model model)
         {
             // An invalid Model yields an invalid Text
-            if (model == null || !model.isValid()) return null;
-
-            // the id field
-            final var max_len_id = Model.VALID_LENGTH_RANGE_id.upper();
-            final var id
-            = model.id.length() > max_len_id
-            ? model.id.substring(0, max_len_id)
-            : model.id
-            ;
-
-            // the name field
-            final var max_len_name = Model.VALID_LENGTH_RANGE_name.upper();
-            final var name
-            = model.name.length() > max_len_name
-            ? model.name.substring(0, max_len_name)
-            : model.name
-            ;
-
-            // the release field
-            final var born = model.born.toString();
+            if (model == null) return null;
 
             // mapping Model to Text
-            final var text = new Text(id, name, born);
+            final var text = new Text(model.id, model.name, model.born.toString());
 
             return text;
         }

@@ -173,10 +173,12 @@ public interface Ex2Movie
                 new TreeMap<Ex2Film.Model, List<Ex2Cast.Model>>(),
                 (accum, entry) -> {
                     final var text_film = entry.getKey();
-                    final var model_film = new Ex2Film.Model(
+
+                    final var model_film = Ex2Film.Model.instance(
                         text_film.name,
                         Year.parse(text_film.release)
                     );
+
                     final var model_casts = entry.getValue().stream()
                     .map(text_cast -> new Ex2Cast.Model(
                         model_film.id(),
@@ -253,10 +255,9 @@ public interface Ex2Movie
                         cast.actor_then_age,
                         Long::parseLong
                     )
-                    .map(age -> new Ex2Actor.Model(
+                    .map(age -> Ex2Actor.Model.instance(
                         cast.actor_name,
-                        Year.parse(entry.getKey().release())
-                            .minusYears(age)
+                        Year.parse(entry.getKey().release()).minusYears(age)
                     ))
                     .orElse(null)
                 )

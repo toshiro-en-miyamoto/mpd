@@ -21,7 +21,7 @@ public class Ex2MovieTest
         + "2,Robert De Niro,Mike,35\n"
         + "2,Meryl Streep,Linda,29\n"
         + "1,\"Good Morning, Vietnam\",1987\n"
-        + "2,Robin Williams,Adrian,36\n"
+        + "2,Robin Williams,Adrian,44\n"
         + "1,The Bridges of Madison County,1995\n"
         + "2,Clint Eastwood,Robert,57\n"
         + "2,Meryl Streep,Francesca,46\n"
@@ -41,7 +41,7 @@ public class Ex2MovieTest
         {
             Ex2Film.Model film;
 
-            film = new Ex2Film.Model("The Deer Hunter", Year.of(1978));
+            film = Ex2Film.Model.instance("The Deer Hunter", Year.of(1978));
             expected.put(
                 film,
                 List.<Ex2Cast.Model>of(
@@ -60,7 +60,7 @@ public class Ex2MovieTest
                 )
             );
 
-            film = new Ex2Film.Model("Good Morning, Vietnam", Year.of(1987));
+            film = Ex2Film.Model.instance("Good Morning, Vietnam", Year.of(1987));
             expected.put(
                 film,
                 List.<Ex2Cast.Model>of(
@@ -73,7 +73,7 @@ public class Ex2MovieTest
                 )
             );
             
-            film = new Ex2Film.Model("The Bridges of Madison County", Year.of(1995));
+            film = Ex2Film.Model.instance("The Bridges of Madison County", Year.of(1995));
             expected.put(
                 film,
                 List.<Ex2Cast.Model>of(
@@ -92,7 +92,7 @@ public class Ex2MovieTest
                 )
             );
             
-            film = new Ex2Film.Model("The Intern", Year.of(2015));
+            film = Ex2Film.Model.instance("The Intern", Year.of(2015));
             expected.put(
                 film,
                 List.<Ex2Cast.Model>of(
@@ -131,7 +131,7 @@ public class Ex2MovieTest
         + "2,Robert De Niro,Mike,35\n"
         + "2,Meryl Streep,Linda,29\n"
         + "1,\"Good Morning, Vietnam\",1987\n"
-        + "2,Robin Williams,Adrian,36\n"
+        + "2,Robin Williams,Adrian,44\n"
         + "1,The Bridges of Madison County,1995\n"
         + "2,Clint Eastwood,Robert,57\n"
         + "2,Meryl Streep,Francesca,46\n"
@@ -143,14 +143,14 @@ public class Ex2MovieTest
 
         SortedSet<Ex2Actor.Model> expected = new TreeSet<>();
         {
-            expected.add(new Ex2Actor.Model("Robert De Niro", Year.of(1978-35)));
-            expected.add(new Ex2Actor.Model("Meryl Streep", Year.of(1978-29)));
-            expected.add(new Ex2Actor.Model("Robin Williams", Year.of(1987-36)));
-            expected.add(new Ex2Actor.Model("Clint Eastwood", Year.of(1995-57)));
-            expected.add(new Ex2Actor.Model("Meryl Streep", Year.of(1995-46)));
-            expected.add(new Ex2Actor.Model("Robert De Niro", Year.of(2015-72)));
-            expected.add(new Ex2Actor.Model("Rene Russo", Year.of(2015-61)));
-            expected.add(new Ex2Actor.Model("Anne Hathaway", Year.of(2015-33)));
+            expected.add(Ex2Actor.Model.instance("Robert De Niro", Year.of(1978-35)));
+            expected.add(Ex2Actor.Model.instance("Meryl Streep", Year.of(1978-29)));
+            expected.add(Ex2Actor.Model.instance("Robin Williams", Year.of(1987-44)));
+            expected.add(Ex2Actor.Model.instance("Clint Eastwood", Year.of(1995-57)));
+            expected.add(Ex2Actor.Model.instance("Meryl Streep", Year.of(1995-46)));
+            expected.add(Ex2Actor.Model.instance("Robert De Niro", Year.of(2015-72)));
+            expected.add(Ex2Actor.Model.instance("Rene Russo", Year.of(2015-61)));
+            expected.add(Ex2Actor.Model.instance("Anne Hathaway", Year.of(2015-33)));
         }
 
         final var movie_reader = new java.io.StringReader(movie_csv);
@@ -168,7 +168,7 @@ public class Ex2MovieTest
         + "2,Robert De Niro,Mike,35\n"
         + "2,Meryl Streep,Linda,29\n"
         + "1,\"Good Morning, Vietnam\",1987\n"
-        + "2,Robin Williams,Adrian,36\n"
+        + "2,Robin Williams,Adrian,44\n"
         + "1,The Bridges of Madison County,1995\n"
         + "2,Clint Eastwood,Robert,57\n"
         + "2,Meryl Streep,Francesca,46\n"
@@ -192,7 +192,7 @@ public class Ex2MovieTest
             expected.put(
                 new Ex2Movie.Text.Film("1","Good Morning, Vietnam", "1987"),
                 List.<Ex2Movie.Text.Cast>of(
-                    new Ex2Movie.Text.Cast("2","Robin Williams","Adrian","36")
+                    new Ex2Movie.Text.Cast("2","Robin Williams","Adrian","44")
                 )
             );
             expected.put(
