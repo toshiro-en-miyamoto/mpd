@@ -20,7 +20,9 @@ public interface Ex2Cast
     ) {}
 
     /**
-     * Ex2Cast model record
+     * Ex2Cast model record  implements the {@code Comparable}
+     * interface (therefore, {@code equals()} and {@code hashCode()}
+     * as well), because we want to sort a list of casts.
      */
     record Model
     (
@@ -71,10 +73,10 @@ public interface Ex2Cast
         public int compareTo(final Model that)
         {
             var comparison =
-            this.film_id != that.film_id
-            ? this.film_id.compareTo(that.film_id)
-            : this.actor_id.compareTo(that.actor_id);
-            
+            this.film_id.equals(that.film_id)
+            ? this.actor_id.compareTo(that.actor_id)
+            : this.film_id.compareTo(that.film_id);
+
             return comparison;
         }
 
@@ -125,38 +127,9 @@ public interface Ex2Cast
             // An invalid Model yields an invalid Text
             if (model == null || !model.isValid()) return null;
 
-            // the film_id field
-            final var max_len_film_id
-            = Model.VALID_LENGTH_RANGE_film_id.upper();
-
-            final var film_id
-            = model.film_id.length() > max_len_film_id
-            ? model.film_id.substring(0, max_len_film_id)
-            : model.film_id
-            ;
-
-            // the actor_id field
-            final var max_len_actor_id
-            = Model.VALID_LENGTH_RANGE_actor_id.upper();
-
-            final var actor_id
-            = model.actor_id.length() > max_len_actor_id
-            ? model.actor_id.substring(0, max_len_actor_id)
-            : model.actor_id
-            ;
-
-            // the role_name field
-            final var max_len_role_name
-            = Model.VALID_LENGTH_RANGE_role_name.upper();
-
-            final var role_name
-            = model.role_name.length() > max_len_role_name
-            ? model.role_name.substring(0, max_len_role_name)
-            : model.role_name
-            ;
-
             // mapping Model to Text
-            final var text = new Text(film_id, actor_id, role_name);
+            final var text
+            = new Text(model.film_id, model.actor_id, model.role_name);
 
             return text;
         }
