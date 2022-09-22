@@ -13,6 +13,45 @@ import org.junit.jupiter.api.Test;
 
 public class Ex2MovieTest
 {
+    static final Ex2Film.Model Deer_Hunter
+    = Ex2Film.Model.instance("The Deer Hunter",               Year.of(1978));
+    static final Ex2Film.Model Morning_Vietnum
+    = Ex2Film.Model.instance("\"Good Morning, Vietnam\"",     Year.of(1987));
+    static final Ex2Film.Model Madison_County
+    = Ex2Film.Model.instance("The Bridges of Madison County", Year.of(1995));
+    static final Ex2Film.Model Intern
+    = Ex2Film.Model.instance("The Intern",                    Year.of(2015));
+
+    static final Ex2Actor.Model Clint_Eastwood
+    = Ex2Actor.Model.instance("Clint Eastwood", Year.of(1930));
+    static final Ex2Actor.Model Robert_De_Niro
+    = Ex2Actor.Model.instance("Robert De Niro", Year.of(1943));
+    static final Ex2Actor.Model Robin_Williams
+    = Ex2Actor.Model.instance("Robin Williams", Year.of(1943));
+    static final Ex2Actor.Model Meryl_Streep
+    = Ex2Actor.Model.instance("Meryl Streep",   Year.of(1949));
+    static final Ex2Actor.Model Rene_Russo
+    = Ex2Actor.Model.instance("Rene Russo",     Year.of(1954));
+    static final Ex2Actor.Model Anne_Hathaway
+    = Ex2Actor.Model.instance("Anne Hathaway",  Year.of(1982));
+
+    static final Ex2Cast.Model Robert_De_Niro_in_Deer_Hunter
+    = Ex2Cast.Model.instance(Deer_Hunter, Robert_De_Niro, "Mike");
+    static final Ex2Cast.Model Meryl_Streep_in_Deer_Hunter
+    = Ex2Cast.Model.instance(Deer_Hunter, Meryl_Streep, "Linda");
+    static final Ex2Cast.Model Robin_Williams_in_Morning_Vietnum
+    = Ex2Cast.Model.instance(Morning_Vietnum, Robin_Williams, "Adrian");
+    static final Ex2Cast.Model Clint_Eastwood_in_Madison_County
+    = Ex2Cast.Model.instance(Madison_County, Clint_Eastwood, "Robert");
+    static final Ex2Cast.Model Meryl_Streep_in_Madison_County
+    = Ex2Cast.Model.instance(Madison_County, Meryl_Streep, "Francesca");
+    static final Ex2Cast.Model Robert_De_Niro_in_Intern
+    = Ex2Cast.Model.instance(Intern, Robert_De_Niro, "Ben");
+    static final Ex2Cast.Model Rene_Russo_in_Intern
+    = Ex2Cast.Model.instance(Intern, Rene_Russo, "Fiona");
+    static final Ex2Cast.Model Anne_Hathaway_in_Intern
+    = Ex2Cast.Model.instance(Intern, Anne_Hathaway, "Jules");
+
     @Test
     void model_map()
     {
@@ -39,81 +78,32 @@ public class Ex2MovieTest
         = new TreeMap<Ex2Film.Model, List<Ex2Cast.Model>>();
 
         {
-            Ex2Film.Model film;
-
-            film = Ex2Film.Model.instance("The Deer Hunter", Year.of(1978));
             expected.put(
-                film,
+                Deer_Hunter,
                 List.<Ex2Cast.Model>of(
-                    Ex2Cast.Model.instance(
-                        film,
-                        Ex2Movie.Extracting
-                            .actor_by_name("Robert De Niro", actors).orElse(null),
-                        "Mike"
-                    ),
-                    Ex2Cast.Model.instance(
-                        film,
-                        Ex2Movie.Extracting
-                            .actor_by_name("Meryl Streep", actors).orElse(null),
-                        "Linda"
-                    )
+                    Robert_De_Niro_in_Deer_Hunter,
+                    Meryl_Streep_in_Deer_Hunter
                 )
             );
-
-            film = Ex2Film.Model.instance("Good Morning, Vietnam", Year.of(1987));
             expected.put(
-                film,
+                Morning_Vietnum,
                 List.<Ex2Cast.Model>of(
-                    Ex2Cast.Model.instance(
-                        film,
-                        Ex2Movie.Extracting
-                            .actor_by_name("Robin Williams", actors).orElse(null),
-                        "Adrian"
-                    )
+                    Robin_Williams_in_Morning_Vietnum
                 )
             );
-            
-            film = Ex2Film.Model.instance("The Bridges of Madison County", Year.of(1995));
             expected.put(
-                film,
+                Madison_County,
                 List.<Ex2Cast.Model>of(
-                    Ex2Cast.Model.instance(
-                        film,
-                        Ex2Movie.Extracting
-                            .actor_by_name("Clint Eastwood", actors).orElse(null),
-                        "Robert"
-                    ),
-                    Ex2Cast.Model.instance(
-                        film,
-                        Ex2Movie.Extracting
-                            .actor_by_name("Meryl Streep", actors).orElse(null),
-                        "Francesca"
-                    )
+                    Clint_Eastwood_in_Madison_County,
+                    Meryl_Streep_in_Madison_County
                 )
             );
-            
-            film = Ex2Film.Model.instance("The Intern", Year.of(2015));
             expected.put(
-                film,
+                Intern,
                 List.<Ex2Cast.Model>of(
-                    Ex2Cast.Model.instance(
-                        film,
-                        Ex2Movie.Extracting
-                            .actor_by_name("Robert De Niro", actors).orElse(null),
-                        "Ben"
-                    ),
-                    Ex2Cast.Model.instance(
-                        film,
-                        Ex2Movie.Extracting
-                            .actor_by_name("Rene Russo", actors).orElse(null),
-                        "Fiona"
-                    ),
-                    Ex2Cast.Model.instance(
-                        film,
-                        Ex2Movie.Extracting
-                            .actor_by_name("Anne Hathaway", actors).orElse(null),
-                        "Jules"
-                    )
+                    Robert_De_Niro_in_Intern,
+                    Rene_Russo_in_Intern,
+                    Anne_Hathaway_in_Intern
                 )
             );
         }
@@ -133,7 +123,7 @@ public class Ex2MovieTest
         + "1,\"Good Morning, Vietnam\",1987\n"
         + "2,Robin Williams,Adrian,44\n"
         + "1,The Bridges of Madison County,1995\n"
-        + "2,Clint Eastwood,Robert,57\n"
+        + "2,Clint Eastwood,Robert,65\n"
         + "2,Meryl Streep,Francesca,46\n"
         + "1,The Intern,2015\n"
         + "2,Robert De Niro,Ben,72\n"
@@ -143,14 +133,14 @@ public class Ex2MovieTest
 
         SortedSet<Ex2Actor.Model> expected = new TreeSet<>();
         {
-            expected.add(Ex2Actor.Model.instance("Robert De Niro", Year.of(1978 - 35)));
-            expected.add(Ex2Actor.Model.instance("Meryl Streep",   Year.of(1978 - 29)));
-            expected.add(Ex2Actor.Model.instance("Robin Williams", Year.of(1987 - 44)));
-            expected.add(Ex2Actor.Model.instance("Clint Eastwood", Year.of(1995 - 57)));
-            expected.add(Ex2Actor.Model.instance("Meryl Streep",   Year.of(1995 - 46)));
-            expected.add(Ex2Actor.Model.instance("Robert De Niro", Year.of(2015 - 72)));
-            expected.add(Ex2Actor.Model.instance("Rene Russo",     Year.of(2015 - 61)));
-            expected.add(Ex2Actor.Model.instance("Anne Hathaway",  Year.of(2015 - 33)));
+            expected.add(Robert_De_Niro_in_Deer_Hunter.actor());
+            expected.add(Meryl_Streep_in_Deer_Hunter.actor());
+            expected.add(Robin_Williams_in_Morning_Vietnum.actor());
+            expected.add(Clint_Eastwood_in_Madison_County.actor());
+            expected.add(Meryl_Streep_in_Madison_County.actor());
+            expected.add(Robert_De_Niro_in_Intern.actor());
+            expected.add(Rene_Russo_in_Intern.actor());
+            expected.add(Anne_Hathaway_in_Intern.actor());
         }
 
         final var movie_reader = new java.io.StringReader(movie_csv);
