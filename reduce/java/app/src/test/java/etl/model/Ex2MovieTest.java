@@ -45,16 +45,16 @@ public class Ex2MovieTest
             expected.put(
                 film,
                 List.<Ex2Cast.Model>of(
-                    new Ex2Cast.Model(
-                        film.id(),
+                    Ex2Cast.Model.instance(
+                        film,
                         Ex2Movie.Extracting
-                            .actor_id_by_name("Robert De Niro", actors),
+                            .actor_by_name("Robert De Niro", actors).orElse(null),
                         "Mike"
                     ),
-                    new Ex2Cast.Model(
-                        film.id(),
+                    Ex2Cast.Model.instance(
+                        film,
                         Ex2Movie.Extracting
-                            .actor_id_by_name("Meryl Streep", actors),
+                            .actor_by_name("Meryl Streep", actors).orElse(null),
                         "Linda"
                     )
                 )
@@ -64,10 +64,10 @@ public class Ex2MovieTest
             expected.put(
                 film,
                 List.<Ex2Cast.Model>of(
-                    new Ex2Cast.Model(
-                        film.id(),
+                    Ex2Cast.Model.instance(
+                        film,
                         Ex2Movie.Extracting
-                            .actor_id_by_name("Robin Williams", actors),
+                            .actor_by_name("Robin Williams", actors).orElse(null),
                         "Adrian"
                     )
                 )
@@ -77,16 +77,16 @@ public class Ex2MovieTest
             expected.put(
                 film,
                 List.<Ex2Cast.Model>of(
-                    new Ex2Cast.Model(
-                        film.id(),
+                    Ex2Cast.Model.instance(
+                        film,
                         Ex2Movie.Extracting
-                            .actor_id_by_name("Clint Eastwood", actors),
+                            .actor_by_name("Clint Eastwood", actors).orElse(null),
                         "Robert"
                     ),
-                    new Ex2Cast.Model(
-                        film.id(),
+                    Ex2Cast.Model.instance(
+                        film,
                         Ex2Movie.Extracting
-                            .actor_id_by_name("Meryl Streep", actors),
+                            .actor_by_name("Meryl Streep", actors).orElse(null),
                         "Francesca"
                     )
                 )
@@ -96,22 +96,22 @@ public class Ex2MovieTest
             expected.put(
                 film,
                 List.<Ex2Cast.Model>of(
-                    new Ex2Cast.Model(
-                        film.id(),
+                    Ex2Cast.Model.instance(
+                        film,
                         Ex2Movie.Extracting
-                            .actor_id_by_name("Robert De Niro", actors),
+                            .actor_by_name("Robert De Niro", actors).orElse(null),
                         "Ben"
                     ),
-                    new Ex2Cast.Model(
-                        film.id(),
+                    Ex2Cast.Model.instance(
+                        film,
                         Ex2Movie.Extracting
-                            .actor_id_by_name("Rene Russo", actors),
+                            .actor_by_name("Rene Russo", actors).orElse(null),
                         "Fiona"
                     ),
-                    new Ex2Cast.Model(
-                        film.id(),
+                    Ex2Cast.Model.instance(
+                        film,
                         Ex2Movie.Extracting
-                            .actor_id_by_name("Anne Hathaway", actors),
+                            .actor_by_name("Anne Hathaway", actors).orElse(null),
                         "Jules"
                     )
                 )
@@ -143,14 +143,14 @@ public class Ex2MovieTest
 
         SortedSet<Ex2Actor.Model> expected = new TreeSet<>();
         {
-            expected.add(Ex2Actor.Model.instance("Robert De Niro", Year.of(1978-35)));
-            expected.add(Ex2Actor.Model.instance("Meryl Streep", Year.of(1978-29)));
-            expected.add(Ex2Actor.Model.instance("Robin Williams", Year.of(1987-44)));
-            expected.add(Ex2Actor.Model.instance("Clint Eastwood", Year.of(1995-57)));
-            expected.add(Ex2Actor.Model.instance("Meryl Streep", Year.of(1995-46)));
-            expected.add(Ex2Actor.Model.instance("Robert De Niro", Year.of(2015-72)));
-            expected.add(Ex2Actor.Model.instance("Rene Russo", Year.of(2015-61)));
-            expected.add(Ex2Actor.Model.instance("Anne Hathaway", Year.of(2015-33)));
+            expected.add(Ex2Actor.Model.instance("Robert De Niro", Year.of(1978 - 35)));
+            expected.add(Ex2Actor.Model.instance("Meryl Streep",   Year.of(1978 - 29)));
+            expected.add(Ex2Actor.Model.instance("Robin Williams", Year.of(1987 - 44)));
+            expected.add(Ex2Actor.Model.instance("Clint Eastwood", Year.of(1995 - 57)));
+            expected.add(Ex2Actor.Model.instance("Meryl Streep",   Year.of(1995 - 46)));
+            expected.add(Ex2Actor.Model.instance("Robert De Niro", Year.of(2015 - 72)));
+            expected.add(Ex2Actor.Model.instance("Rene Russo",     Year.of(2015 - 61)));
+            expected.add(Ex2Actor.Model.instance("Anne Hathaway",  Year.of(2015 - 33)));
         }
 
         final var movie_reader = new java.io.StringReader(movie_csv);

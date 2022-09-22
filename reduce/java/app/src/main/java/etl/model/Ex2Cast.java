@@ -1,7 +1,6 @@
 package etl.model;
 
 import etl.util.IntRange;
-import etl.util.Sha1;
 import etl.util.TextHelper;
 
 /**
@@ -20,7 +19,7 @@ public interface Ex2Cast
     ) {}
 
     /**
-     * Ex2Cast model record  implements the {@code Comparable}
+     * Ex2Cast model record implements the {@code Comparable}
      * interface (therefore, {@code equals()} and {@code hashCode()}
      * as well), because we want to sort a list of casts.
      */
@@ -33,41 +32,28 @@ public interface Ex2Cast
         implements Comparable<Model>
     {
         /**
-         * The valid length range of {@code film_id}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_film_id
-        = IntRange.lower(Sha1.HEX_TEXT_LENGTH).upper(Sha1.HEX_TEXT_LENGTH);
-
-        /**
-         * The valid length range of {@code actor_id}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_actor_id
-        = IntRange.lower(Sha1.HEX_TEXT_LENGTH).upper(Sha1.HEX_TEXT_LENGTH);
-
-        /**
          * The valid length range of {@code role_name}.
          */
         public static final IntRange VALID_LENGTH_RANGE_role_name
         = IntRange.lower(1).upper(32);
 
-        /**
-         * Validates the model record.
-         * @return {@code true} if the model record is valid
-         */
-        boolean isValid()
-        {
-            boolean validity
-            =  film_id != null
-            && VALID_LENGTH_RANGE_film_id.covers(film_id.length())
+        public static Model instance(
+            final Ex2Film.Model film,
+            final Ex2Actor.Model actor,
+            final String role_name
+        ) {
+            if (role_name == null) return null;
+            if (role_name.length() < VALID_LENGTH_RANGE_role_name.lower()) return null;
+            if (role_name.length() > VALID_LENGTH_RANGE_role_name.upper()) return null;
 
-            && actor_id != null
-            && VALID_LENGTH_RANGE_actor_id.covers(actor_id.length())
-
-            && role_name != null
-            && VALID_LENGTH_RANGE_role_name.covers(role_name.length())
-            ;
-            return validity;
+            final var instance = new Ex2Cast.Model(
+                film.id(), actor.id(), role_name
+            );
+            return instance;
         }
+
+        // boolean isValid() is not defined because the constuctor guarantees
+        // validity of model instances
 
         @Override
         public int compareTo(final Model that)
@@ -125,7 +111,7 @@ public interface Ex2Cast
         static Text text(final Model model)
         {
             // An invalid Model yields an invalid Text
-            if (model == null || !model.isValid()) return null;
+            if (model == null) return null;
 
             // mapping Model to Text
             final var text

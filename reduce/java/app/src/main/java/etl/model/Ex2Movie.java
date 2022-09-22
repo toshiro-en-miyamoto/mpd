@@ -180,15 +180,9 @@ public interface Ex2Movie
                     );
 
                     final var model_casts = entry.getValue().stream()
-                    .map(text_cast -> new Ex2Cast.Model(
-                        model_film.id(),
-                        actors.stream()
-                            .filter(actor ->
-                                actor.name().equals(text_cast.actor_name)
-                            )
-                            .map(Ex2Actor.Model::id)
-                            .findFirst()
-                            .orElse(null),
+                    .map(text_cast -> Ex2Cast.Model.instance(
+                        model_film,
+                        actor_by_name(text_cast.actor_name, actors).orElse(null),
                         text_cast.role_name
                     ))
                     .collect(Collectors.toList());
@@ -209,17 +203,17 @@ public interface Ex2Movie
          * @param name   the name of actor to look the specified list for
          * @param actors a list of actors
          * @return       the id of matched actor, or null if not found
-         */
         static String actor_id_by_name(
             final String name,
             final SortedSet<Ex2Actor.Model> actors
         ) {
-            final var actor_id = find_actor_by_name(name, actors)
+            final var actor_id = actor_by_name(name, actors)
             .map(Ex2Actor.Model::id)
             .orElse(null)
             ;
             return actor_id;
         }
+         */
 
         /**
          * Returns an actor model.
@@ -228,7 +222,7 @@ public interface Ex2Movie
          * @return       an Optional with the matched actor or
          *               an empty Optional if not found
          */
-        static Optional<Ex2Actor.Model> find_actor_by_name(
+        static Optional<Ex2Actor.Model> actor_by_name(
             final String name,
             final SortedSet<Ex2Actor.Model> actors
         ) {
