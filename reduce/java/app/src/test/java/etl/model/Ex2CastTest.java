@@ -3,6 +3,9 @@ package etl.model;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Year;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -46,6 +49,122 @@ public class Ex2CastTest
     = Ex2Cast.Model.instance(Intern, Rene_Russo, "Fiona");
     static final Ex2Cast.Model Anne_Hathaway_in_Intern
     = Ex2Cast.Model.instance(Intern, Anne_Hathaway, "Jules");
+
+    @Test
+    void casts_in_a_movie_are_sorted_by_name()
+    {
+        final var model1 = Robert_De_Niro_in_Intern;
+        final var model2 = Rene_Russo_in_Intern;
+        final var model3 = Anne_Hathaway_in_Intern;
+
+        final var expected = List.of(model1, model2, model3);
+
+        // [1] 123
+        final Ex2Cast.Model models123[] = {model1, model2, model3};
+        final var actual123 = Arrays.asList(models123);
+        assertEquals(expected, actual123);
+
+        Collections.sort(actual123);
+        assertEquals(expected, actual123);
+
+        // [2] 132
+        final Ex2Cast.Model models132[] = {model1, model3, model2};
+        final var actual132 = Arrays.asList(models132);
+        assertNotEquals(expected, actual132);
+
+        Collections.sort(actual132);
+        assertEquals(expected, actual132);
+
+        // [3] 213
+        final Ex2Cast.Model models213[] = {model2, model1, model3};
+        final var actual213 = Arrays.asList(models213);
+        assertNotEquals(expected, actual213);
+
+        Collections.sort(actual213);
+        assertEquals(expected, actual213);
+
+        // [4] 231
+        final Ex2Cast.Model models231[] = {model2, model3, model1};
+        final var actual231 = Arrays.asList(models231);
+        assertNotEquals(expected, actual231);
+
+        Collections.sort(actual231);
+        assertEquals(expected, actual231);
+
+        // [5] 312
+        final Ex2Cast.Model models312[] = {model3, model1, model2};
+        final var actual312 = Arrays.asList(models312);
+        assertNotEquals(expected, actual312);
+
+        Collections.sort(actual312);
+        assertEquals(expected, actual312);
+
+        // [6] 321
+        final Ex2Cast.Model models321[] = {model3, model2, model1};
+        final var actual321 = Arrays.asList(models321);
+        assertNotEquals(expected, actual321);
+
+        Collections.sort(actual321);
+        assertEquals(expected, actual321);
+    }
+
+    @Test
+    void casts_are_sorted_by_film()
+    {
+        final var model1 = Robert_De_Niro_in_Deer_Hunter;
+        final var model2 = Clint_Eastwood_in_Madison_County;
+        final var model3 = Robert_De_Niro_in_Intern;
+
+        final var expected = List.of(model1, model2, model3);
+
+        // [1] 123
+        final Ex2Cast.Model models123[] = {model1, model2, model3};
+        final var actual123 = Arrays.asList(models123);
+        assertEquals(expected, actual123);
+
+        Collections.sort(actual123);
+        assertEquals(expected, actual123);
+
+        // [2] 132
+        final Ex2Cast.Model models132[] = {model1, model3, model2};
+        final var actual132 = Arrays.asList(models132);
+        assertNotEquals(expected, actual132);
+
+        Collections.sort(actual132);
+        assertEquals(expected, actual132);
+
+        // [3] 213
+        final Ex2Cast.Model models213[] = {model2, model1, model3};
+        final var actual213 = Arrays.asList(models213);
+        assertNotEquals(expected, actual213);
+
+        Collections.sort(actual213);
+        assertEquals(expected, actual213);
+
+        // [4] 231
+        final Ex2Cast.Model models231[] = {model2, model3, model1};
+        final var actual231 = Arrays.asList(models231);
+        assertNotEquals(expected, actual231);
+
+        Collections.sort(actual231);
+        assertEquals(expected, actual231);
+
+        // [5] 312
+        final Ex2Cast.Model models312[] = {model3, model1, model2};
+        final var actual312 = Arrays.asList(models312);
+        assertNotEquals(expected, actual312);
+
+        Collections.sort(actual312);
+        assertEquals(expected, actual312);
+
+        // [6] 321
+        final Ex2Cast.Model models321[] = {model3, model2, model1};
+        final var actual321 = Arrays.asList(models321);
+        assertNotEquals(expected, actual321);
+
+        Collections.sort(actual321);
+        assertEquals(expected, actual321);
+    }
 
     @Test
     void casts_in_a_film_are_compared_by_actor()
