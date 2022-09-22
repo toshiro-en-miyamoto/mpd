@@ -293,8 +293,7 @@ public interface Ex2Movie
                                 "%d: an invalid constant or an empty line\n",
                                 csv_record.getRecordNumber()
                             );
-                        }
-                        );
+                        });
                         return accum;
                     },
                     (accum, other) -> {

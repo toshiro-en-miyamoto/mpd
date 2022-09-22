@@ -1,5 +1,7 @@
 package etl.model;
 
+import java.util.Objects;
+
 import etl.util.IntRange;
 import etl.util.TextHelper;
 
@@ -25,9 +27,9 @@ public interface Ex2Cast
      */
     record Model
     (
-        String film_id,
-        String actor_id,
-        String role_name
+        Ex2Film.Model  film,
+        Ex2Actor.Model actor,
+        String         role_name
     )
         implements Comparable<Model>
     {
@@ -43,13 +45,15 @@ public interface Ex2Cast
             final String role_name
         ) {
             if (role_name == null) return null;
-            if (role_name.length() < VALID_LENGTH_RANGE_role_name.lower()) return null;
-            if (role_name.length() > VALID_LENGTH_RANGE_role_name.upper()) return null;
 
-            final var instance = new Ex2Cast.Model(
-                film.id(), actor.id(), role_name
-            );
-            return instance;
+            if (VALID_LENGTH_RANGE_role_name.covers(role_name.length())) {
+                final var instance = new Ex2Cast.Model(
+                    film, actor, role_name
+                );
+                return instance;
+            } else {
+                return null;
+            }
         }
 
         // boolean isValid() is not defined because the constuctor guarantees
@@ -59,9 +63,9 @@ public interface Ex2Cast
         public int compareTo(final Model that)
         {
             var comparison =
-            this.film_id.equals(that.film_id)
-            ? this.actor_id.compareTo(that.actor_id)
-            : this.film_id.compareTo(that.film_id);
+            this.film.equals(that.film)
+            ? this.actor.compareTo(that.actor)
+            : this.film.compareTo(that.film);
 
             return comparison;
         }
@@ -80,8 +84,8 @@ public interface Ex2Cast
             Model that = (Model) obj;
 
             final var equality
-            =  this.film_id.equals(that.film_id)
-            && this.actor_id.equals(that.actor_id);
+            =  this.film.equals(that.film)
+            && this.actor.equals(that.actor);
 
             return equality;
         }
@@ -93,7 +97,7 @@ public interface Ex2Cast
         @Override
         public int hashCode()
         {
-            return film_id.concat(actor_id).hashCode();
+            return Objects.hash(film, actor);
         }
     }
 
@@ -115,7 +119,7 @@ public interface Ex2Cast
 
             // mapping Model to Text
             final var text
-            = new Text(model.film_id, model.actor_id, model.role_name);
+            = new Text(model.film.id(), model.actor.id(), model.role_name);
 
             return text;
         }
