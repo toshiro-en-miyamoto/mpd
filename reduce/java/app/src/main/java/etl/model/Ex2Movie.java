@@ -199,23 +199,6 @@ public interface Ex2Movie
         }
 
         /**
-         * Returns an actor id of the specified name.
-         * @param name   the name of actor to look the specified list for
-         * @param actors a list of actors
-         * @return       the id of matched actor, or null if not found
-        static String actor_id_by_name(
-            final String name,
-            final SortedSet<Ex2Actor.Model> actors
-        ) {
-            final var actor_id = actor_by_name(name, actors)
-            .map(Ex2Actor.Model::id)
-            .orElse(null)
-            ;
-            return actor_id;
-        }
-         */
-
-        /**
          * Returns an actor model.
          * @param name   the name of actor to look the specified list for
          * @param actors a list of actors
