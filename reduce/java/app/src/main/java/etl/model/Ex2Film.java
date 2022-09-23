@@ -52,8 +52,7 @@ public interface Ex2Film
         public static Model instance(String name, Year release)
         {
             if (name == null || release == null) return null;
-            if (name.length() < VALID_LENGTH_RANGE_name.lower()) return null;
-            if (name.length() > VALID_LENGTH_RANGE_name.upper()) return null;
+            if (!VALID_LENGTH_RANGE_name.covers(name.length())) return null;
 
             var instance = new Model(
                 Sha1.hex_string(name.concat(release.toString())),
@@ -90,7 +89,8 @@ public interface Ex2Film
         /**
          * Indicates whether some other object is "equal to" this one.
          * @param that the reference object with which to compare
-         * @return     {@code true} if this object is the same os the {@code that}
+         * @return  {@code true} if the {@code id} field of this object
+         *          is equals to the field of the {@code that}
          */
         @Override
         public boolean equals(Object obj)
