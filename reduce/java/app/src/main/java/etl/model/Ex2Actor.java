@@ -52,8 +52,9 @@ public interface Ex2Actor
         public static Model instance(String name, Year born)
         {
             if (name == null || born == null) return null;
-            if (name.length() < VALID_LENGTH_RANGE_name.lower()) return null;
-            if (name.length() > VALID_LENGTH_RANGE_name.upper()) return null;
+
+            if (!VALID_LENGTH_RANGE_name.covers(name.length()))
+                return null;
 
             var instance = new Model(
                 Sha1.hex_string(name.concat(born.toString())),

@@ -52,7 +52,9 @@ public interface Ex2Film
         public static Model instance(String name, Year release)
         {
             if (name == null || release == null) return null;
-            if (!VALID_LENGTH_RANGE_name.covers(name.length())) return null;
+
+            if (!VALID_LENGTH_RANGE_name.covers(name.length()))
+                return null;
 
             var instance = new Model(
                 Sha1.hex_string(name.concat(release.toString())),

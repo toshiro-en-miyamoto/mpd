@@ -46,14 +46,13 @@ public interface Ex2Cast
         ) {
             if (role_name == null) return null;
 
-            if (VALID_LENGTH_RANGE_role_name.covers(role_name.length())) {
-                final var instance = new Ex2Cast.Model(
-                    film, actor, role_name
-                );
-                return instance;
-            } else {
+            if (!VALID_LENGTH_RANGE_role_name.covers(role_name.length()))
                 return null;
-            }
+
+            final var instance = new Ex2Cast.Model(
+                film, actor, role_name
+            );
+            return instance;
         }
 
         // boolean isValid() is not defined because the constuctor guarantees
