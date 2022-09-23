@@ -16,7 +16,7 @@ public class Ex2MovieTest
     static final Ex2Film.Model Deer_Hunter
     = Ex2Film.Model.instance("The Deer Hunter",               Year.of(1978));
     static final Ex2Film.Model Morning_Vietnum
-    = Ex2Film.Model.instance("\"Good Morning, Vietnam\"",     Year.of(1987));
+    = Ex2Film.Model.instance("Good Morning, Vietnam",         Year.of(1987));
     static final Ex2Film.Model Madison_County
     = Ex2Film.Model.instance("The Bridges of Madison County", Year.of(1995));
     static final Ex2Film.Model Intern
@@ -62,7 +62,7 @@ public class Ex2MovieTest
         + "1,\"Good Morning, Vietnam\",1987\n"
         + "2,Robin Williams,Adrian,44\n"
         + "1,The Bridges of Madison County,1995\n"
-        + "2,Clint Eastwood,Robert,57\n"
+        + "2,Clint Eastwood,Robert,65\n"
         + "2,Meryl Streep,Francesca,46\n"
         + "1,The Intern,2015\n"
         + "2,Robert De Niro,Ben,72\n"
