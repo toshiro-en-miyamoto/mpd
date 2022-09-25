@@ -19,7 +19,38 @@ public interface Ex2Film
         String id,
         String name,
         String release
-     ) {}
+    ) {
+        /**
+         * The valid length range of {@code name}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_name
+        = IntRange.lower(1).upper(32);
+
+        /**
+         * The valid length range of {@code release}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_release
+        = IntRange.lower(4).with_same_upper();
+
+        /**
+         * Validates the internal state of a Text record.
+         * @return  {@code true} if
+         *          the {@code name} argument is not null,
+         *          1 ≤ {@code name.length()} ≤ 32,
+         *          the {@code release} argument is not null, and
+         *          {@code release.length()} == 4
+         */
+        public boolean post_condition()
+        {
+            final boolean validity
+            =  name != null
+            && VALID_LENGTH_RANGE_name.covers(name.length())
+            && release != null
+            && VALID_LENGTH_RANGE_release.covers(release.length())
+            ;
+            return validity;
+        }
+    }
 
     /**
      * Ex2Film model record implements the {@code Comparable}
@@ -35,36 +66,48 @@ public interface Ex2Film
         implements Comparable<Model>
     {
         /**
-         * The valid length range of {@code name}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_name
-        = IntRange.lower(1).upper(32);
-
-        /**
-         * Returns a new Ex2Film.Model instance.
+         * Instanciates an Model instance.
          * @param name    the name of the film
-         * @param release Year when the film was released
-         * @return  a valid Model instance or {@code null} if
-         *          the {@code name} argument is null,
-         *          the {@code release} argument is null, or
-         *          the {@code name} length < 1 byte or > 32 bytes
+         * @param release the year when the film was released
+         * @return  a Model instance or {@code null} if
+         *          the argument is not valid
+         * @see     pre_condition(...)
          */
         public static Model instance(String name, Year release)
         {
-            if (name == null || release == null) return null;
-
-            if (!VALID_LENGTH_RANGE_name.covers(name.length()))
+            // an invalid Model if the pre-condition doesn't hold
+            if (!pre_condition(name, release)) {
                 return null;
+            }
 
-            var instance = new Model(
-                Sha1.hex_string(name.concat(release.toString())),
-                name, release
-            );
-            return instance;
+            // the id field
+            final var id
+            = Sha1.hex_string(name.concat(release.toString()));
+
+            // create a Model instance
+            final var model = new Model(id, name, release);
+
+            return model;
         }
 
-        // boolean isValid() is not defined because the constuctor guarantees
-        // validity of model instances
+        /**
+         * Validates a set of arguments to instanciate a Model record.
+         * @param name    the name of the film
+         * @param release the year when the film was released
+         * @return  {@code true} if
+         *          the {@code name} argument is not null, and
+         *          the {@code release} argument is not null
+         */
+        public static boolean pre_condition(
+            final String name,
+            final Year release
+        ) {
+            final boolean validity
+            =  name != null
+            && release != null
+            ;
+            return validity;
+        }
 
         /**
          * Compares this model with the specified Model for order.
@@ -91,8 +134,8 @@ public interface Ex2Film
         /**
          * Indicates whether some other object is "equal to" this one.
          * @param that the reference object with which to compare
-         * @return  {@code true} if the {@code id} field of this object
-         *          is equals to the field of the {@code that}
+         * @return {@code true} if the {@code id} field of this object
+         *         is equals to the field of the {@code that}
          */
         @Override
         public boolean equals(Object obj)
@@ -126,17 +169,26 @@ public interface Ex2Film
         /**
          * Transforms a Model record to a Text record.
          * @param model a Model record
-         * @return      a Text record
+         * @return  a Text record or {@code null} if
+         *          the argument is not valid
+         * @see     post_condition(...)
          */
         static Text text(final Model model)
         {
-            // An invalid Model yields an invalid Text
+            // an invalid Model yields an invalid Text
             if (model == null) return null;
 
-            // mapping Model to Text
-            final var text = new Text(model.id, model.name, model.release.toString());
+            // the release field
+            final var release = model.release.toString();
 
-            return text;
+            // mapping Model to Text
+            final var text
+            = new Text(model.id, model.name, release);
+
+            // an invalid Text if the post-condition doesn't hold
+            return text.post_condition()
+            ? text
+            : null;
         }
 
         /**

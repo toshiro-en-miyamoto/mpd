@@ -124,14 +124,18 @@ public class Ex2ActorTest
     void longer_name_is_not_valid()
     {
         final var model = Ex2Actor.Model.instance("123456789012345678901234567890123", Year.of(2033));
-        assertNull(model);
+        assertNotNull(model);
+        final var text = Ex2Actor.Loading.text(model);
+        assertNull(text);
     }
 
     @Test
     void empty_name_is_not_valid()
     {
         final var model = Ex2Actor.Model.instance("", Year.of(2000));
-        assertNull(model);
+        assertNotNull(model);
+        final var text = Ex2Actor.Loading.text(model);
+        assertNull(text);
     }
 
     @Test
@@ -146,6 +150,8 @@ public class Ex2ActorTest
     {
         final var model = Ex2Actor.Model.instance("12345678901234567890123456789012", Year.of(2032));
         assertNotNull(model);
+        final var text = Ex2Actor.Loading.text(model);
+        assertNotNull(text);
     }
 
     @Test
@@ -153,5 +159,7 @@ public class Ex2ActorTest
     {
         final var model = Ex2Actor.Model.instance("1", Year.of(2001));
         assertNotNull(model);
+        final var text = Ex2Actor.Loading.text(model);
+        assertNotNull(text);
     }
 }

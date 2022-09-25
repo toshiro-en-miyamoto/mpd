@@ -36,8 +36,17 @@ public class LongRange implements Comparable<LongRange>
     {
         if (upper < this.lower) throw new IllegalArgumentException();
 
-        var clone = this.clone();
-        clone.upper = upper;
+        final var clone = new LongRange(this.lower, upper);
+        return clone;
+    }
+
+    /**
+     * Returns a range {@code ⟦this.lower, this.lower⟧}.
+     * @return a range
+     */
+    public LongRange with_same_upper()
+    {
+        final var clone = new LongRange(this.lower, this.lower);
         return clone;
     }
 
@@ -116,15 +125,6 @@ public class LongRange implements Comparable<LongRange>
         hash = prime * hash + Long.hashCode(lower);
         hash = prime + hash + Long.hashCode(upper);
         return hash;
-    }
-
-    /**
-     * Creates and returns a copy of this range.
-     * @return a clone of this range
-     */
-    @Override public LongRange clone()
-    {
-        return new LongRange(lower, upper);
     }
 
     /*

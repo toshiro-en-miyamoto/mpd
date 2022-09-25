@@ -265,24 +265,18 @@ public interface Ex2Movie
                 map = parser.stream()
                 .reduce(
                     new TreeMap<Text.Film, List<Text.Cast>>(),
-                    (accum, csv_record) -> {
+                    (accum, csv) -> {
                         Ex2Movie.RecordType.of(
-                            csv_record.get(Ex2Movie.Text.INDEX_RECORD_TYPE)
+                            csv.get(Ex2Movie.Text.INDEX_RECORD_TYPE)
                         )
                         .ifPresentOrElse(constant -> {
                             switch (constant) {
                             case FILM:
-                                var text_film = ModelReader.text(
-                                    csv_record,
-                                    Ex2Movie.Extracting.text_film_ctor
-                                );
+                                var text_film = text_film(csv);
                                 accum.put(text_film, new ArrayList<>());
                                 break;
                             case CAST:
-                                var text_cast = ModelReader.text(
-                                    csv_record,
-                                    Ex2Movie.Extracting.text_cast_ctor
-                                );
+                                var text_cast = text_cast(csv);
                                 accum.get(accum.lastKey()).add(text_cast);
                                 break;
                             }
@@ -291,7 +285,7 @@ public interface Ex2Movie
                             // ToDo: call the logging subsystem rather than System.err.
                             System.err.printf(
                                 "%d: an invalid constant or an empty line\n",
-                                csv_record.getRecordNumber()
+                                csv.getRecordNumber()
                             );
                         });
                         return accum;

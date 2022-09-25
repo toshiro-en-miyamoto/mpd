@@ -18,7 +18,29 @@ public interface Ex2Cast
         String film_id,
         String actor_id,
         String role_name
-    ) {}
+    ) {
+        /**
+         * The valid length range of {@code role_name}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_role_name
+        = IntRange.lower(1).upper(32);
+
+        /**
+         * Validates the internal state of a Text record.
+         * @param role_name the role name of the actor in the film
+         * @return  {@code true} if
+         *          the {@code role_name} argument is not null, and
+         *          1 ≤ {@code role_name.length()} ≤ 32
+         */
+        public boolean post_condition()
+        {
+            final boolean validity
+            =  role_name != null
+            && VALID_LENGTH_RANGE_role_name.covers(role_name.length())
+            ;
+            return validity;
+        }
+    }
 
     /**
      * Ex2Cast model record implements the {@code Comparable}
@@ -34,35 +56,68 @@ public interface Ex2Cast
         implements Comparable<Model>
     {
         /**
-         * The valid length range of {@code role_name}.
+         * Instanciates an Model instance.
+         * @param name    the name of the film
+         * @param release the year when the film was released
+         * @return  a Model instance or {@code null} if
+         *          the argument is not valid
+         * @see     pre_condition(...)
          */
-        public static final IntRange VALID_LENGTH_RANGE_role_name
-        = IntRange.lower(1).upper(32);
-
         public static Model instance(
             final Ex2Film.Model film,
             final Ex2Actor.Model actor,
             final String role_name
         ) {
-            if (role_name == null) return null;
-
-            if (!VALID_LENGTH_RANGE_role_name.covers(role_name.length()))
+            // an invalid Model if the pre-condition doesn't hold
+            if (!pre_condition(film, actor, role_name)) {
                 return null;
+            }
 
-            final var instance = new Ex2Cast.Model(
-                film, actor, role_name
-            );
-            return instance;
+            // create a Model instane
+            final var model = new Model(film, actor, role_name);
+
+            return model;
         }
 
-        // boolean isValid() is not defined because the constuctor guarantees
-        // validity of model instances
+        /**
+         * Validates a set of arguments to instanciate a Model record.
+         * @param film      an Ex2Film.Model instance
+         * @param actor     an Ex2Actor.Model instance
+         * @param role_name the role name of the actor in the film
+         * @return  {@code true} if
+         *          the {@code film} argument is not null,
+         *          the {@code actor} argument is not null, and
+         *          the {@code role_name} argument is not null
+         */
+        public static boolean pre_condition(
+            final Ex2Film.Model film,
+            final Ex2Actor.Model actor,
+            final String role_name
+        ) {
+            final boolean validity
+            =  film != null
+            && actor != null
+            && role_name != null
+            ;
+            return validity;
+        }
 
+        /**
+         * Compares this model with the specified Model for order.
+         * Firstly, the Ex2Film.Model is compared. If they are equal,
+         * then the Ex2Actor is compared.
+         * @param that the object to be compared
+         * @return  zero if both the Ex2Film and the Ex2Acto are equal;
+         *          if this Ex2Film is less or greater than that Ex2Film,
+         *          then a negative or positive integer returns respectively;
+         *          if the Ex2Actor is equal and this role name
+         *          lexicographically precedes or follows that name, then
+         *          a negative or positive integer returns respectively.
+         */
         @Override
         public int compareTo(final Model that)
         {
-            var comparison =
-            this.film.equals(that.film)
+            var comparison = this.film.equals(that.film)
             ? this.actor.compareTo(that.actor)
             : this.film.compareTo(that.film);
 
@@ -72,7 +127,8 @@ public interface Ex2Cast
         /**
          * Indicates whether some other object is "equal to" this one.
          * @param that the reference object with which to compare
-         * @return     {@code true} if this object is the same os the {@code that}
+         * @return {@code true} if the Ex2Film and Ex2Actor fields
+         *         are the same of the {@code that}
          */
         @Override
         public boolean equals(Object obj)
@@ -109,18 +165,26 @@ public interface Ex2Cast
         /**
          * Transforms a Model record to a Text record.
          * @param model a Model record
-         * @return      a Text record
+         * @return  a Text record or {@code null} if
+         *          the argument is not valid
+         * @see     post_condition(...)
          */
         static Text text(final Model model)
         {
             // An invalid Model yields an invalid Text
             if (model == null) return null;
 
+            // the role_name field
+            final var role_name = model.role_name;
+
             // mapping Model to Text
             final var text
-            = new Text(model.film.id(), model.actor.id(), model.role_name);
+            = new Text(model.film.id(), model.actor.id(), role_name);
 
-            return text;
+            // an invalid Text if the post-condition doesn't hold
+            return text.post_condition()
+            ? text
+            : null;
         }
 
         /**

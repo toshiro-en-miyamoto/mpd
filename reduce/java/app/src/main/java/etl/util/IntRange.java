@@ -36,8 +36,17 @@ public class IntRange implements Comparable<IntRange>
     {
         if (upper < this.lower) throw new IllegalArgumentException();
 
-        var clone = this.clone();
-        clone.upper = upper;
+        final var clone = new IntRange(this.lower, upper);
+        return clone;
+    }
+
+    /**
+     * Returns a range {@code ⟦this.lower, this.lower⟧}.
+     * @return a range
+     */
+    public IntRange with_same_upper()
+    {
+        final var clone = new IntRange(this.lower, this.lower);
         return clone;
     }
 
@@ -70,8 +79,8 @@ public class IntRange implements Comparable<IntRange>
     public int lower() { return lower; }
 
     /**
-     * Returns the upper bound exclusive.
-     * @return the upper bound exclusive
+     * Returns the upper bound inclusive.
+     * @return the upper bound inclusive
      */
     public int upper() { return upper; }
 
@@ -116,15 +125,6 @@ public class IntRange implements Comparable<IntRange>
         hash = prime * hash + Integer.hashCode(lower);
         hash = prime + hash + Integer.hashCode(upper);
         return hash;
-    }
-
-    /**
-     * Creates and returns a copy of this range.
-     * @return a clone of this range
-     */
-    @Override public IntRange clone()
-    {
-        return new IntRange(lower, upper);
     }
 
     /*

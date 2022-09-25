@@ -186,7 +186,9 @@ public class Ex2CastTest
         final var model = Ex2Cast.Model.instance(Deer_Hunter, Robert_De_Niro,
             "123456789012345678901234567890123"
         );
-        assertNull(model);
+        assertNotNull(model);
+        final var text = Ex2Cast.Loading.text(model);
+        assertNull(text);
     }
 
     @Test
@@ -195,7 +197,9 @@ public class Ex2CastTest
         final var model = Ex2Cast.Model.instance(Deer_Hunter, Robert_De_Niro,
             ""
         );
-        assertNull(model);
+        assertNotNull(model);
+        final var text = Ex2Cast.Loading.text(model);
+        assertNull(text);
     }
 
     @Test
@@ -214,6 +218,8 @@ public class Ex2CastTest
             "12345678901234567890123456789012"
         );
         assertNotNull(model);
+        final var text = Ex2Cast.Loading.text(model);
+        assertNotNull(text);
     }
 
     @Test
@@ -223,5 +229,7 @@ public class Ex2CastTest
             "1"
         );
         assertNotNull(model);
+        final var text = Ex2Cast.Loading.text(model);
+        assertNotNull(text);
     }
 }

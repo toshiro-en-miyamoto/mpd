@@ -19,7 +19,38 @@ public interface Ex2Actor
         String id,
         String name,
         String born
-    ) {}
+    ) {
+        /**
+         * The valid length range of {@code name}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_name
+        = IntRange.lower(1).upper(32);
+
+        /**
+         * The valid length range of {@code born}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_born
+        = IntRange.lower(4).with_same_upper();
+
+        /**
+         * Validates the internal state of a Text record.
+         * @return  {@code true} if
+         *          the {@code name} argument is not null,
+         *          1 ≤ {@code name.length()} ≤ 32,
+         *          the {@code born} argument is not null, and
+         *          {@code born.length()} == 4
+         */
+        public boolean post_condition()
+        {
+            final boolean validity
+            =  name != null
+            && VALID_LENGTH_RANGE_name.covers(name.length())
+            && born != null
+            && VALID_LENGTH_RANGE_born.covers(born.length())
+            ;
+            return validity;
+        }
+    }
 
     /**
      * Ex2Actor model record implements the {@code Comparable}
@@ -35,36 +66,48 @@ public interface Ex2Actor
         implements Comparable<Model>
     {
         /**
-         * The valid length range of {@code name}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_name
-        = IntRange.lower(1).upper(32);
-
-        /**
-         * Returns a new Ex2Actor.Model instance.
-         * @param name    the name of the film
-         * @param born Year when the actor was born
-         * @return  a valid Model instance or {@code null} if
-         *          the {@code name} argument is null,
-         *          the {@code born} argument is null, or
-         *          the {@code name} length < 1 byte or > 32 bytes
+         * Instanciates a Model instance.
+         * @param name the name of the film
+         * @param born the year when the actor was born
+         * @return  a Model instance or {@code null} if
+         *          the argument is not valid
+         * @see     pre_condition(...)
          */
         public static Model instance(String name, Year born)
         {
-            if (name == null || born == null) return null;
-
-            if (!VALID_LENGTH_RANGE_name.covers(name.length()))
+            // an invalid Model if the pre-condition doesn't hold
+            if (!pre_condition(name, born)) {
                 return null;
+            }
 
-            var instance = new Model(
-                Sha1.hex_string(name.concat(born.toString())),
-                name, born
-            );
-            return instance;
+            // the id field
+            final var id
+            = Sha1.hex_string(name.concat(born.toString()));
+
+            // create a Model nstance
+            final var model = new Model(id, name, born);
+
+            return model;
         }
 
-        // boolean isValid() is not defined because the constuctor guarantees
-        // validity of model instances
+        /**
+         * Validates a set of arguments to instanciate a Model record.
+         * @param name the name of the actor
+         * @param born the year when the actor was born
+         * @return  {@code true} if
+         *          the {@code name} argument is not null, and
+         *          the {@code born} argument is not null
+         */
+        public static boolean pre_condition(
+            final String name,
+            final Year born
+        ) {
+            final boolean validity
+            =  name != null
+            && born != null
+            ;
+            return validity;
+        }
 
         /**
          * Compares this model with the specified model for order.
@@ -91,7 +134,8 @@ public interface Ex2Actor
         /**
          * Indicates whether some other object is "equal to" this one.
          * @param that the reference object with which to compare
-         * @return     {@code true} if this object is the same os the {@code that}
+         * @return {@code true} if the {@code id} field of this object
+         *         is equals to the field of the {@code that}
          */
         @Override
         public boolean equals(Object obj)
@@ -125,17 +169,26 @@ public interface Ex2Actor
         /**
          * Transforms a Model record to a Text record.
          * @param model a Model record
-         * @return      a Text record
+         * @return  a Text record or {@code null} if
+         *          the argument is not valid
+         * @see     post_condition(...)
          */
         static Text text(final Model model)
         {
             // An invalid Model yields an invalid Text
             if (model == null) return null;
 
-            // mapping Model to Text
-            final var text = new Text(model.id, model.name, model.born.toString());
+            // the born field
+            final var born = model.born.toString();
 
-            return text;
+            // mapping Model to Text
+            final var text
+            = new Text(model.id, model.name, born);
+
+            // an invalid Text if the post-condition doesn't hold
+            return text.post_condition()
+            ? text
+            : null;
         }
 
         /**
