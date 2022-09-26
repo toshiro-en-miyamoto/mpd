@@ -152,6 +152,7 @@ public class Ex2ActorTest
         assertNotNull(model);
         final var text = Ex2Actor.Loading.text(model);
         assertNotNull(text);
+        assertTrue(text.is_valid());
     }
 
     @Test
@@ -161,5 +162,6 @@ public class Ex2ActorTest
         assertNotNull(model);
         final var text = Ex2Actor.Loading.text(model);
         assertNotNull(text);
+        assertTrue(text.is_valid());
     }
 }

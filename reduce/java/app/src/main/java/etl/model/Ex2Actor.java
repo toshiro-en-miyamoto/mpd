@@ -12,47 +12,6 @@ import etl.util.TextHelper;
 public interface Ex2Actor
 {
     /**
-     * Ex2Actor Text record
-     */
-    record Text
-    (
-        String id,
-        String name,
-        String born
-    ) {
-        /**
-         * The valid length range of {@code name}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_name
-        = IntRange.lower(1).upper(32);
-
-        /**
-         * The valid length range of {@code born}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_born
-        = IntRange.lower(4).with_same_upper();
-
-        /**
-         * Validates the internal state of a Text record.
-         * @return  {@code true} if
-         *          the {@code name} argument is not null,
-         *          1 ≤ {@code name.length()} ≤ 32,
-         *          the {@code born} argument is not null, and
-         *          {@code born.length()} == 4
-         */
-        public boolean post_condition()
-        {
-            final boolean validity
-            =  name != null
-            && VALID_LENGTH_RANGE_name.covers(name.length())
-            && born != null
-            && VALID_LENGTH_RANGE_born.covers(born.length())
-            ;
-            return validity;
-        }
-    }
-
-    /**
      * Ex2Actor model record implements the {@code Comparable}
      * interface (therefore, {@code equals()} and {@code hashCode()}
      * as well), because we want to sort a list of actors.
@@ -70,13 +29,13 @@ public interface Ex2Actor
          * @param name the name of the film
          * @param born the year when the actor was born
          * @return  a Model instance or {@code null} if
-         *          the argument is not valid
-         * @see     pre_condition(...)
+         *          the {@code name} argument is {@code null}, or
+         *          the {@code born} argument is {@code null}
          */
         public static Model instance(String name, Year born)
         {
-            // an invalid Model if the pre-condition doesn't hold
-            if (!pre_condition(name, born)) {
+            // an invalid Model if the pre-conditions don't hold
+            if (name == null || born == null) {
                 return null;
             }
 
@@ -88,25 +47,6 @@ public interface Ex2Actor
             final var model = new Model(id, name, born);
 
             return model;
-        }
-
-        /**
-         * Validates a set of arguments to instanciate a Model record.
-         * @param name the name of the actor
-         * @param born the year when the actor was born
-         * @return  {@code true} if
-         *          the {@code name} argument is not null, and
-         *          the {@code born} argument is not null
-         */
-        public static boolean pre_condition(
-            final String name,
-            final Year born
-        ) {
-            final boolean validity
-            =  name != null
-            && born != null
-            ;
-            return validity;
         }
 
         /**
@@ -161,6 +101,47 @@ public interface Ex2Actor
     }
 
     /**
+     * Ex2Actor Text record
+     */
+    record Text
+    (
+        String id,
+        String name,
+        String born
+    ) {
+        /**
+         * The valid length range of {@code name}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_name
+        = IntRange.lower(1).upper(32);
+
+        /**
+         * The valid length range of {@code born}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_born
+        = IntRange.lower(4).with_same_upper();
+
+        /**
+         * Validates the internal state of a Text record.
+         * @return  {@code true} if
+         *          the {@code name} argument is not null,
+         *          1 ≤ {@code name.length()} ≤ 32,
+         *          the {@code born} argument is not null, and
+         *          {@code born.length()} == 4
+         */
+        public boolean is_valid()
+        {
+            final boolean validity
+            =  name != null
+            && VALID_LENGTH_RANGE_name.covers(name.length())
+            && born != null
+            && VALID_LENGTH_RANGE_born.covers(born.length())
+            ;
+            return validity;
+        }
+    }
+
+    /**
      * Loading provides methods for writing Model records
      * to CSV files.
      */
@@ -170,8 +151,9 @@ public interface Ex2Actor
          * Transforms a Model record to a Text record.
          * @param model a Model record
          * @return  a Text record or {@code null} if
-         *          the argument is not valid
-         * @see     post_condition(...)
+         *          the {@code model} is null, or
+         *          the post condition for a Text don't hold
+         * @see     Text.is_valid()
          */
         static Text text(final Model model)
         {
@@ -186,7 +168,7 @@ public interface Ex2Actor
             = new Text(model.id, model.name, born);
 
             // an invalid Text if the post-condition doesn't hold
-            return text.post_condition()
+            return text.is_valid()
             ? text
             : null;
         }

@@ -220,6 +220,7 @@ public class Ex2CastTest
         assertNotNull(model);
         final var text = Ex2Cast.Loading.text(model);
         assertNotNull(text);
+        assertTrue(text.is_valid());
     }
 
     @Test
@@ -231,5 +232,6 @@ public class Ex2CastTest
         assertNotNull(model);
         final var text = Ex2Cast.Loading.text(model);
         assertNotNull(text);
+        assertTrue(text.is_valid());
     }
 }

@@ -11,38 +11,6 @@ import etl.util.TextHelper;
 public interface Ex2Cast
 {
     /**
-     * Ex2Cast text record
-     */
-    record Text
-    (
-        String film_id,
-        String actor_id,
-        String role_name
-    ) {
-        /**
-         * The valid length range of {@code role_name}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_role_name
-        = IntRange.lower(1).upper(32);
-
-        /**
-         * Validates the internal state of a Text record.
-         * @param role_name the role name of the actor in the film
-         * @return  {@code true} if
-         *          the {@code role_name} argument is not null, and
-         *          1 ≤ {@code role_name.length()} ≤ 32
-         */
-        public boolean post_condition()
-        {
-            final boolean validity
-            =  role_name != null
-            && VALID_LENGTH_RANGE_role_name.covers(role_name.length())
-            ;
-            return validity;
-        }
-    }
-
-    /**
      * Ex2Cast model record implements the {@code Comparable}
      * interface (therefore, {@code equals()} and {@code hashCode()}
      * as well), because we want to sort a list of casts.
@@ -57,19 +25,21 @@ public interface Ex2Cast
     {
         /**
          * Instanciates an Model instance.
-         * @param name    the name of the film
-         * @param release the year when the film was released
+         * @param film      an Ex2Film instance
+         * @param actor     an Ex2Actor instance
+         * @param role_name the role name of the actor in the film
          * @return  a Model instance or {@code null} if
-         *          the argument is not valid
-         * @see     pre_condition(...)
+         *          the {@code film} argument is {@code null},
+         *          the {@code actor} argument is {@code null}, or
+         *          the {@code role_name} argument is {@code null}
          */
         public static Model instance(
             final Ex2Film.Model film,
             final Ex2Actor.Model actor,
             final String role_name
         ) {
-            // an invalid Model if the pre-condition doesn't hold
-            if (!pre_condition(film, actor, role_name)) {
+            // an invalid Model if the pre-conditions don't hold
+            if (film == null || actor == null || role_name == null) {
                 return null;
             }
 
@@ -77,29 +47,6 @@ public interface Ex2Cast
             final var model = new Model(film, actor, role_name);
 
             return model;
-        }
-
-        /**
-         * Validates a set of arguments to instanciate a Model record.
-         * @param film      an Ex2Film.Model instance
-         * @param actor     an Ex2Actor.Model instance
-         * @param role_name the role name of the actor in the film
-         * @return  {@code true} if
-         *          the {@code film} argument is not null,
-         *          the {@code actor} argument is not null, and
-         *          the {@code role_name} argument is not null
-         */
-        public static boolean pre_condition(
-            final Ex2Film.Model film,
-            final Ex2Actor.Model actor,
-            final String role_name
-        ) {
-            final boolean validity
-            =  film != null
-            && actor != null
-            && role_name != null
-            ;
-            return validity;
         }
 
         /**
@@ -157,6 +104,38 @@ public interface Ex2Cast
     }
 
     /**
+     * Ex2Cast text record
+     */
+    record Text
+    (
+        String film_id,
+        String actor_id,
+        String role_name
+    ) {
+        /**
+         * The valid length range of {@code role_name}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_role_name
+        = IntRange.lower(1).upper(32);
+
+        /**
+         * Validates the internal state of a Text record.
+         * @param role_name the role name of the actor in the film
+         * @return  {@code true} if
+         *          the {@code role_name} argument is not null, and
+         *          1 ≤ {@code role_name.length()} ≤ 32
+         */
+        public boolean is_valid()
+        {
+            final boolean validity
+            =  role_name != null
+            && VALID_LENGTH_RANGE_role_name.covers(role_name.length())
+            ;
+            return validity;
+        }
+    }
+
+    /**
      * Loading provides methods for writing Model records
      * to CSV files.
      */
@@ -166,8 +145,9 @@ public interface Ex2Cast
          * Transforms a Model record to a Text record.
          * @param model a Model record
          * @return  a Text record or {@code null} if
-         *          the argument is not valid
-         * @see     post_condition(...)
+         *          the {@code model} is null, or
+         *          the post condition for a Text don't hold
+         * @see     Text.is_valid()
          */
         static Text text(final Model model)
         {
@@ -182,7 +162,7 @@ public interface Ex2Cast
             = new Text(model.film.id(), model.actor.id(), role_name);
 
             // an invalid Text if the post-condition doesn't hold
-            return text.post_condition()
+            return text.is_valid()
             ? text
             : null;
         }

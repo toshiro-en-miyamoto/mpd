@@ -12,47 +12,6 @@ import etl.util.TextHelper;
 public interface Ex2Film
 {
     /**
-     * Ex2Film text record
-     */
-    record Text
-    (
-        String id,
-        String name,
-        String release
-    ) {
-        /**
-         * The valid length range of {@code name}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_name
-        = IntRange.lower(1).upper(32);
-
-        /**
-         * The valid length range of {@code release}.
-         */
-        public static final IntRange VALID_LENGTH_RANGE_release
-        = IntRange.lower(4).with_same_upper();
-
-        /**
-         * Validates the internal state of a Text record.
-         * @return  {@code true} if
-         *          the {@code name} argument is not null,
-         *          1 ≤ {@code name.length()} ≤ 32,
-         *          the {@code release} argument is not null, and
-         *          {@code release.length()} == 4
-         */
-        public boolean post_condition()
-        {
-            final boolean validity
-            =  name != null
-            && VALID_LENGTH_RANGE_name.covers(name.length())
-            && release != null
-            && VALID_LENGTH_RANGE_release.covers(release.length())
-            ;
-            return validity;
-        }
-    }
-
-    /**
      * Ex2Film model record implements the {@code Comparable}
      * interface (therefore, {@code equals()} and {@code hashCode()}
      * as well), because we want to sort a list of films.
@@ -70,13 +29,13 @@ public interface Ex2Film
          * @param name    the name of the film
          * @param release the year when the film was released
          * @return  a Model instance or {@code null} if
-         *          the argument is not valid
-         * @see     pre_condition(...)
+         *          {@code name} is {@code null}, or
+         *          {@code release} is {@code null}
          */
         public static Model instance(String name, Year release)
         {
-            // an invalid Model if the pre-condition doesn't hold
-            if (!pre_condition(name, release)) {
+            // an invalid Model if the pre-conditions don't hold
+            if (name == null || release == null) {
                 return null;
             }
 
@@ -88,25 +47,6 @@ public interface Ex2Film
             final var model = new Model(id, name, release);
 
             return model;
-        }
-
-        /**
-         * Validates a set of arguments to instanciate a Model record.
-         * @param name    the name of the film
-         * @param release the year when the film was released
-         * @return  {@code true} if
-         *          the {@code name} argument is not null, and
-         *          the {@code release} argument is not null
-         */
-        public static boolean pre_condition(
-            final String name,
-            final Year release
-        ) {
-            final boolean validity
-            =  name != null
-            && release != null
-            ;
-            return validity;
         }
 
         /**
@@ -161,6 +101,47 @@ public interface Ex2Film
     }
 
     /**
+     * Ex2Film text record
+     */
+    record Text
+    (
+        String id,
+        String name,
+        String release
+    ) {
+        /**
+         * The valid length range of {@code name}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_name
+        = IntRange.lower(1).upper(32);
+
+        /**
+         * The valid length range of {@code release}.
+         */
+        public static final IntRange VALID_LENGTH_RANGE_release
+        = IntRange.lower(4).with_same_upper();
+
+        /**
+         * Validates the internal state of a Text record.
+         * @return  {@code true} if
+         *          the {@code name} argument is not null,
+         *          1 ≤ {@code name.length()} ≤ 32,
+         *          the {@code release} argument is not null, and
+         *          {@code release.length()} == 4
+         */
+        public boolean is_valid()
+        {
+            final boolean validity
+            =  name != null
+            && VALID_LENGTH_RANGE_name.covers(name.length())
+            && release != null
+            && VALID_LENGTH_RANGE_release.covers(release.length())
+            ;
+            return validity;
+        }
+    }
+
+    /**
      * Loading provides methods for writing Model records
      * to CSV files.
      */
@@ -170,8 +151,9 @@ public interface Ex2Film
          * Transforms a Model record to a Text record.
          * @param model a Model record
          * @return  a Text record or {@code null} if
-         *          the argument is not valid
-         * @see     post_condition(...)
+         *          the {@code model} is null, or
+         *          the post condition for a Text don't hold
+         * @see     Text.is_valid()
          */
         static Text text(final Model model)
         {
@@ -186,7 +168,7 @@ public interface Ex2Film
             = new Text(model.id, model.name, release);
 
             // an invalid Text if the post-condition doesn't hold
-            return text.post_condition()
+            return text.is_valid()
             ? text
             : null;
         }

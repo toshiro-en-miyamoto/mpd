@@ -17,6 +17,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import etl.util.CloseableSupplier;
+import etl.util.IntRange;
 import etl.util.ModelReader;
 import etl.util.TextHelper;
 
@@ -25,52 +26,63 @@ import etl.util.TextHelper;
  */
 public interface Ex2Movie
 {
-    static final String
-    REC_T_CODE_FILM = "1",
-    REC_T_CODE_CAST = "2";
-
-    /**
-     * Record types
-     */
-    enum RecordType
+    interface RecordType
     {
-        FILM(REC_T_CODE_FILM), CAST(REC_T_CODE_CAST);
+        /**
+         * The index of the record type field in the Ex2Movie CSV file.
+         */
+        static final int INDEX = 0;
 
         /**
-         * Transforms a String to the corresponding RecordType.
-         * @param code a String corresponding to an enum constant
-         * @return     an Optional with the matched RecordType, or
-         *             an empty Optional if not matched
+         * The string constants of the record type field
+         * in the Ex2Movie CSV file.
          */
-        public static Optional<RecordType> of(String code)
+        static final String
+        CODE_FILM = "1",
+        CODE_CAST = "2";
+
+        /**
+         * Defines {@code enum} constants of {@code RecordType}.
+         */
+        enum Constant
         {
-            switch (code) {
-                case REC_T_CODE_FILM: return Optional.of(FILM);
-                case REC_T_CODE_CAST: return Optional.of(CAST);
-                default: return Optional.empty();
-            }
+            FILM(CODE_FILM), CAST(CODE_CAST);
+
+            /**
+             * Returns the value of the enum constant.
+             * @return the value of the enum constant
+             */
+            public String code() { return code; }
+
+            private Constant(String code) { this.code = code; }
+            private final String code;
         }
 
         /**
-         * Returns the value of the enum constant.
-         * @return the value of the enum constant
+         * Transforms a String to the corresponding {@code RecordType}.
+         * @param code a String corresponding to an enum constant
+         * @return  an {@code Optional} with the matched {@code RecordType},
+         *          or an empty Optional if {@code code} is null or doesn't
+         *          matched to any enum constant.
          */
-        public String code() { return code; }
+        public static Optional<Constant> of(String code)
+        {
+            if (code == null) return Optional.empty();
 
-        private RecordType(String code) { this.code = code; }
-        private final String code;
+            switch (code) {
+                case CODE_FILM: return Optional.of(Constant.FILM);
+                case CODE_CAST: return Optional.of(Constant.CAST);
+                default: return Optional.empty();
+            }
+        }
     }
+
 
     /**
      * Ex2Movie text records
      */
     interface Text
     {
-        /**
-         * The index of the record type field in Text.Film and Text.Cast records.
-         */
-        static final int INDEX_RECORD_TYPE = 0;
-
         /**
          * Ex2Movie.Text.Film record implements the {@code Comparable}
          * interface (therefore, {@code equals()} and {@code hashCode()}
@@ -84,6 +96,54 @@ public interface Ex2Movie
         )
             implements Comparable<Film>
         {
+            /**
+             * The valid length range of {@code name}.
+             */
+            static final IntRange VALID_LENGTH_RANGE_name
+            = IntRange.lower(1).upper(32);
+
+            /**
+             * The valid length range of {@code release}.
+             */
+            static final IntRange VALID_LENGTH_RANGE_release
+            = IntRange.lower(4).with_same_upper();
+
+            /**
+             * Validates the internal state of a Text record.
+             * @return  {@code true} if
+             *          the {@code name} argument is not null,
+             *          1 ≤ {@code name.length()} ≤ 32,
+             *          the {@code release} argument is not null, and
+             *          {@code release.length()} == 4
+             */
+            public boolean is_valid()
+            {
+                final boolean validity
+                =  name != null
+                && VALID_LENGTH_RANGE_name.covers(name.length())
+                && release != null
+                && VALID_LENGTH_RANGE_release.covers(release.length())
+                && release.matches("^[0-9]+$")
+                ;
+                return validity;
+            }
+
+            /**
+             * Transforms the CSVRecord to the Text.Film record.
+             * @param csv a CSVRecord instance
+             * @return    a Text.Film record
+             */
+            static Film instance(final CSVRecord csv)
+            {
+                final var text = ModelReader.text(csv, ctor);
+                return text.is_valid()
+                ? text
+                : null;
+            }
+
+            private static final Constructor<Text.Film> ctor
+            = TextHelper.ctor(Text.Film.class);
+
             /**
              * Compares this model with the specified Text for order.
              * Firstly, the release year is compared. If they are equal,
@@ -99,11 +159,10 @@ public interface Ex2Movie
             @Override
             public int compareTo(final Film that)
             {
-                var comparison =
-                this.release != that.release
-                ? this.release.compareTo(that.release)
-                : this.name.compareTo(that.name);
-                
+                var comparison = this.release.equals(that.release)
+                ? this.name.compareTo(that.name)
+                : this.release.compareTo(that.release)
+                ;
                 return comparison;
             }
     
@@ -146,16 +205,72 @@ public interface Ex2Movie
             String record_type,
             String actor_name,
             String role_name,
-            String actor_then_age
-        ) {}
+            String actor_age
+        ) {
+            /**
+             * The valid length range of {@code actor_name}.
+             */
+            static final IntRange VALID_LENGTH_RANGE_actor_name
+            = IntRange.lower(1).upper(32);
+
+            /**
+             * The valid length range of {@code role_name}.
+             */
+            static final IntRange VALID_LENGTH_RANGE_role_name
+            = IntRange.lower(1).upper(32);
+
+            /**
+             * The valid length range of {@code actor_then_age}.
+             */
+            static final IntRange VALID_LENGTH_RANGE_actor_age
+            = IntRange.lower(1).upper(3);
+
+            /**
+             * Validates the internal state of a Text record.
+             * @return  {@code true} if
+             *          the {@code actor_name} argument is not null,
+             *          1 ≤ {@code actor_name.length()} ≤ 32,
+             *          the {@code role_name} argument is not null,
+             *          1 ≤ {@code role_name.length()} ≤ 32,
+             *          the {@code actor_age} argument is not null, and
+             *          1 ≤ {@code actor_age.length()} ≤ 3,
+             */
+            public boolean is_valid()
+            {
+                final boolean validity
+                =  actor_name != null
+                && VALID_LENGTH_RANGE_actor_name.covers(actor_name.length())
+                && role_name != null
+                && VALID_LENGTH_RANGE_role_name.covers(role_name.length())
+                && actor_age != null
+                && VALID_LENGTH_RANGE_actor_age.covers(actor_age.length())
+                && actor_age.matches("^[0-9]+$")
+                ;
+                return validity;
+            }
+
+            /**
+             * Transforms the CSVRecord to the Text.Cast record.
+             * @param csv a CSVRecord instance
+             * @return    a Text.Cast record
+             */
+            static Cast instance(final CSVRecord csv)
+            {
+                final var text = ModelReader.text(csv, ctor);
+                return text.is_valid()
+                ? text
+                : null;
+            }
+
+            private static final Constructor<Text.Cast> ctor
+            = TextHelper.ctor(Text.Cast.class);
+        }
     }
 
     /**
-     * Ex2Movie model records
+     * Extracting provides methods for reading Model records
+     * from CSV files.
      */
-    interface Model
-    {}
-
     interface Extracting
     {
         /**
@@ -229,7 +344,7 @@ public interface Ex2Movie
             .flatMap(entry -> entry.getValue().stream()
                 .map(cast ->
                     TextHelper.<Long>parse(
-                        cast.actor_then_age,
+                        cast.actor_age,
                         Long::parseLong
                     )
                     .map(age -> Ex2Actor.Model.instance(
@@ -267,21 +382,20 @@ public interface Ex2Movie
                     new TreeMap<Text.Film, List<Text.Cast>>(),
                     (accum, csv) -> {
                         Ex2Movie.RecordType.of(
-                            csv.get(Ex2Movie.Text.INDEX_RECORD_TYPE)
+                            csv.get(RecordType.INDEX)
                         )
                         .ifPresentOrElse(constant -> {
                             switch (constant) {
                             case FILM:
-                                var text_film = text_film(csv);
+                                var text_film = Text.Film.instance(csv);
                                 accum.put(text_film, new ArrayList<>());
                                 break;
                             case CAST:
-                                var text_cast = text_cast(csv);
+                                var text_cast = Text.Cast.instance(csv);
                                 accum.get(accum.lastKey()).add(text_cast);
                                 break;
                             }
-                        },
-                        () -> {
+                        }, () -> {
                             // ToDo: call the logging subsystem rather than System.err.
                             System.err.printf(
                                 "%d: an invalid constant or an empty line\n",
@@ -300,39 +414,5 @@ public interface Ex2Movie
                 return null;
             }
         }
-
-        /**
-         * Transforms the CSVRecord to the Text.Film record.
-         * @param csv a CSVRecord instance
-         * @return    a Text.Film record
-         */
-        static Text.Film text_film(final CSVRecord csv)
-        {
-            final var text = ModelReader.text(csv, text_film_ctor);
-            return text;
-        }
-
-        /**
-         * Transforms the CSVRecord to the Text.Cast record.
-         * @param csv a CSVRecord instance
-         * @return    a Text.Cast record
-         */
-        static Text.Cast text_cast(final CSVRecord csv)
-        {
-            final var text = ModelReader.text(csv, text_cast_ctor);
-            return text;
-        }
-
-        /**
-         * The canonical constructor of the Text.Film record type.
-         */
-        static final Constructor<Text.Film> text_film_ctor
-        = TextHelper.ctor(Text.Film.class);
-
-        /**
-         * The canonical constructor of the Text.Cast record type.
-         */
-        static final Constructor<Text.Cast> text_cast_ctor
-        = TextHelper.ctor(Text.Cast.class);
     }
 }

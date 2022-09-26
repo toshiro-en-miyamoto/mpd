@@ -153,6 +153,7 @@ public class Ex2FilmTest
         assertNotNull(model);
         final var text = Ex2Film.Loading.text(model);
         assertNotNull(text);
+        assertTrue(text.is_valid());
     }
 
     @Test
@@ -162,5 +163,6 @@ public class Ex2FilmTest
         assertNotNull(model);
         final var text = Ex2Film.Loading.text(model);
         assertNotNull(text);
+        assertTrue(text.is_valid());
     }
 }
