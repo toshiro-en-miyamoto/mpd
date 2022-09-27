@@ -64,7 +64,7 @@ public interface Ex2Actor
         @Override
         public int compareTo(final Model that)
         {
-            var comparison = this.born.equals(that.born)
+            final var comparison = this.born.equals(that.born)
             ? this.name.compareTo(that.name)
             : this.born.compareTo(that.born);
 
@@ -83,7 +83,7 @@ public interface Ex2Actor
             if (this == obj) return true;
             if (obj == null) return false;
             if (this.getClass() != obj.getClass()) return false;
-            Model that = (Model) obj;
+            final Model that = (Model) obj;
 
             final var equality = this.id.equals(that.id);
             return equality;

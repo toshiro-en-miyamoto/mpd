@@ -32,10 +32,10 @@ public interface Ex2Mapper
      */
     public static void main(String[] args)
     {
-        Path movie_path = Path.of(args[0]);
-        Path film_path  = Path.of(args[1]);
-        Path actor_path = Path.of(args[2]);
-        Path cast_path  = Path.of(args[3]);
+        final Path movie_path = Path.of(args[0]);
+        final Path film_path  = Path.of(args[1]);
+        final Path actor_path = Path.of(args[2]);
+        final Path cast_path  = Path.of(args[3]);
 
         // preconditions:
         if (!Files.exists(movie_path)) {

@@ -64,7 +64,7 @@ public interface Ex2Film
         @Override
         public int compareTo(final Model that)
         {
-            var comparison = this.release.equals(that.release)
+            final var comparison = this.release.equals(that.release)
             ? this.name.compareTo(that.name)
             : this.release.compareTo(that.release);
             
@@ -83,7 +83,7 @@ public interface Ex2Film
             if (this == obj) return true;
             if (obj == null) return false;
             if (this.getClass() != obj.getClass()) return false;
-            Model that = (Model) obj;
+            final Model that = (Model) obj;
 
             final var equality = this.id.equals(that.id);
             return equality;

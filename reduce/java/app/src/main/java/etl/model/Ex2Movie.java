@@ -163,7 +163,7 @@ public interface Ex2Movie
             @Override
             public int compareTo(final Film that)
             {
-                var comparison = this.release.equals(that.release)
+                final var comparison = this.release.equals(that.release)
                 ? this.name.compareTo(that.name)
                 : this.release.compareTo(that.release)
                 ;
@@ -181,7 +181,7 @@ public interface Ex2Movie
                 if (this == obj) return true;
                 if (obj == null) return false;
                 if (this.getClass() != obj.getClass()) return false;
-                Film that = (Film) obj;
+                final Film that = (Film) obj;
     
                 final var equality
                 =  this.name.equals(that.name())

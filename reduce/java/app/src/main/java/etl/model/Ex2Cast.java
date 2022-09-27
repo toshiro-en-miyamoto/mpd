@@ -64,7 +64,7 @@ public interface Ex2Cast
         @Override
         public int compareTo(final Model that)
         {
-            var comparison = this.film.equals(that.film)
+            final var comparison = this.film.equals(that.film)
             ? this.actor.compareTo(that.actor)
             : this.film.compareTo(that.film);
 
@@ -83,7 +83,7 @@ public interface Ex2Cast
             if (this == obj) return true;
             if (obj == null) return false;
             if (this.getClass() != obj.getClass()) return false;
-            Model that = (Model) obj;
+            final Model that = (Model) obj;
 
             final var equality
             =  this.film.equals(that.film)
