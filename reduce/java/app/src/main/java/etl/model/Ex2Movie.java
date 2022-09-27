@@ -131,12 +131,16 @@ public interface Ex2Movie
             /**
              * Transforms the CSVRecord to the Text.Film record.
              * @param csv a CSVRecord instance
-             * @return    a Text.Film record
+             * @return    a Text.Film record or {@code null} if
+             *            reading from the CSVRecord failed, or
+             *            the Text.Film instanciated from the CSVRecord
+             *            doesn't meet requirements
+             * @see       {@code is_valid()}
              */
             static Film instance(final CSVRecord csv)
             {
                 final var text = ModelReader.text(csv, ctor);
-                return text.is_valid()
+                return text != null && text.is_valid()
                 ? text
                 : null;
             }
@@ -252,12 +256,16 @@ public interface Ex2Movie
             /**
              * Transforms the CSVRecord to the Text.Cast record.
              * @param csv a CSVRecord instance
-             * @return    a Text.Cast record
+             * @return    a Text.Cast record or {@code null} if
+             *            reading from the CSVRecord failed, or
+             *            the Text.Cast instanciated from the CSVRecord
+             *            doesn't meet requirements
+             * @see       {@code is_valid()}
              */
             static Cast instance(final CSVRecord csv)
             {
                 final var text = ModelReader.text(csv, ctor);
-                return text.is_valid()
+                return text != null && text.is_valid()
                 ? text
                 : null;
             }
@@ -282,6 +290,8 @@ public interface Ex2Movie
             final SortedMap<Text.Film, List<Text.Cast>> text_map,
             final SortedSet<Ex2Actor.Model> actors
         ) {
+            if (text_map == null || actors == null) return null;
+
             final SortedMap<Ex2Film.Model, List<Ex2Cast.Model>>
             model_map = text_map.entrySet().stream()
             .reduce(
