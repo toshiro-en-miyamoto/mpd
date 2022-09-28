@@ -173,7 +173,9 @@ public interface Ex2Movie
             /**
              * Indicates whether some other object is "equal to" this one.
              * @param that the reference object with which to compare
-             * @return     {@code true} if this object is the same os the {@code that}
+             * @return {@code true} if the {@code name} and {@code release}
+             *         fields of this object are equal to the fields of the
+             *         {@code that}
              */
             @Override
             public boolean equals(Object obj)
@@ -189,7 +191,7 @@ public interface Ex2Movie
                 ;
                 return equality;
             }
-    
+
             /**
              * Returns a hash code value for the object.
              * @return a hash code value for this object

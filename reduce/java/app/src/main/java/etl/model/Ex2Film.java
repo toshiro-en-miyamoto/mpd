@@ -75,7 +75,7 @@ public interface Ex2Film
          * Indicates whether some other object is "equal to" this one.
          * @param that the reference object with which to compare
          * @return {@code true} if the {@code id} field of this object
-         *         is equals to the field of the {@code that}
+         *         is equal to the field of the {@code that}
          */
         @Override
         public boolean equals(Object obj)

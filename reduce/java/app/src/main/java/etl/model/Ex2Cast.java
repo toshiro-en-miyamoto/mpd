@@ -75,7 +75,7 @@ public interface Ex2Cast
          * Indicates whether some other object is "equal to" this one.
          * @param that the reference object with which to compare
          * @return {@code true} if the Ex2Film and Ex2Actor fields
-         *         are the same of the {@code that}
+         *         are equal to the {@code that}
          */
         @Override
         public boolean equals(Object obj)
