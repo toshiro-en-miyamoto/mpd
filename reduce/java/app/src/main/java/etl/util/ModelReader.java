@@ -103,17 +103,13 @@ public interface ModelReader
         return instance;
     }
 
-
     /**
-     * Returns a CSVFormat for reading CSV files. The format has the
-     * following features:
-     * <ul>
-     * <li>include a list of record component names as the header
-     * <li>ignore empty lines
-     * <li>ignore surrounding whitespaces of each CSV field
-     * </ul>
+     * Returns a CSVFormat for reading CSV files.
+     * The format has not only the features defined by {@code format_builder()}
+     * but also a list of record component names as the header.
      * @param text_class the class instance of the 'text' record type
-     * @return           a CSVFormat for reading CSV files
+     * @return  a CSVFormat for reading CSV files that convey
+     *          data of the specified text class
      */
     static CSVFormat format(final Class<? extends Record> text_class)
     {
@@ -122,13 +118,42 @@ public interface ModelReader
         .map(RecordComponent::getName)
         .toArray(String[]::new);
 
-        final var format = CSVFormat.Builder
-        .create()
+        final var format = format_builder()
         .setHeader(componentNames)
-        .setIgnoreEmptyLines(false)
-        .setIgnoreSurroundingSpaces(true)
         .build();
 
         return format;
+    }
+
+    /**
+     * Returns a CSVFormat for reading CSV files.
+     * The format only has the features defined by {@code format_builder()}.
+     * @return  a CSVFormat for reading CSV files
+     */
+    static CSVFormat default_format()
+    {
+        final var format = format_builder()
+        .build()
+        ;
+        return format;
+    }
+
+    /**
+     * Returns a CSVFormat.Builder that defines a default set of format
+     * features, which
+     * <ul>
+     * <li>ignore empty lines
+     * <li>ignore surrounding whitespaces of each CSV field
+     * </ul>
+     * @return  a CSVFormat.Builder instance
+     */
+    static CSVFormat.Builder format_builder()
+    {
+        final var builder = CSVFormat.Builder
+        .create()
+        .setIgnoreEmptyLines(false)
+        .setIgnoreSurroundingSpaces(true)
+        ;
+        return builder;
     }
 }

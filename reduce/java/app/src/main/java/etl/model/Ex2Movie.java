@@ -380,11 +380,7 @@ public interface Ex2Movie
         static SortedMap<Text.Film, List<Text.Cast>> text_map(
             CloseableSupplier<Reader> reader
         ) {
-            final var format = CSVFormat.Builder
-            .create()
-            .setIgnoreEmptyLines(false)
-            .setIgnoreSurroundingSpaces(true)
-            .build();
+            final var format = ModelReader.default_format();
 
             try (
                 final var parser = CSVParser.parse(reader.get(), format)
