@@ -33,8 +33,8 @@ public class Ex2MovieTest
     static final String String_Madison_County  = "The Bridges of Madison County";
     static final String String_Intern          = "The Intern";
 
-    static final String code_film = Ex2Movie.RecordType.CODE_FILM;
-    static final String code_cast = Ex2Movie.RecordType.CODE_CAST;
+    static final String code_film = Ex2Movie.RecordKind.CODE_FILM;
+    static final String code_cast = Ex2Movie.RecordKind.CODE_CAST;
 
     static final Ex2Movie.Text.Film       Text_Deer_Hunter
     = new Ex2Movie.Text.Film(code_film, String_Deer_Hunter,     "1978");
@@ -222,10 +222,10 @@ public class Ex2MovieTest
     @Test
     void films_in_same_year_are_compared_by_name()
     {
-        final var text1 = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        final var text1 = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             "Crimson Tide", "1995"
         );
-        final var text2 = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        final var text2 = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             "The Bridges of Madison County", "1995"
         );
 
@@ -235,10 +235,10 @@ public class Ex2MovieTest
     @Test
     void films_are_compared_by_release_year()
     {
-        final var text1 = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        final var text1 = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             "The Deer Hunter", "1978"
         );
-        final var text2 = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        final var text2 = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             "The Bridges of Madison County", "1995"
         );
 
@@ -248,37 +248,37 @@ public class Ex2MovieTest
     @Test
     void invalid_actor_age()
     {
-        var text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        var text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro, "Mike",
             null
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro, "Mike",
             ""
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro, "Mike",
             "1"
         );
         assertTrue(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro, "Mike",
             "999"
         );
         assertTrue(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro, "Mike",
             "99_"
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro, "Mike",
             "1000"
         );
@@ -288,35 +288,35 @@ public class Ex2MovieTest
     @Test
     void invalid_cast_role_name()
     {
-        var text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        var text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro,
             null,
             "35"
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro,
             "",
             "35"
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro,
             "1",
             "35"
         );
         assertTrue(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro,
             "12345678901234567890123456789012",
             "35"
         );
         assertTrue(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro,
             "123456789012345678901234567890123",
             "35"
@@ -327,31 +327,31 @@ public class Ex2MovieTest
     @Test
     void invalid_cast_actor_name()
     {
-        var text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        var text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             null,
             "Mike", "35"
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             "",
             "Mike", "35"
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             "1",
             "Mike", "35"
         );
         assertTrue(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             "12345678901234567890123456789012",
             "Mike", "35"
         );
         assertTrue(text.is_valid());
 
-        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             "123456789012345678901234567890123",
             "Mike", "35"
         );
@@ -361,7 +361,7 @@ public class Ex2MovieTest
     @Test
     void valid_cast()
     {
-        var text = new Ex2Movie.Text.Cast(Ex2Movie.RecordType.CODE_CAST,
+        var text = new Ex2Movie.Text.Cast(Ex2Movie.RecordKind.CODE_CAST,
             String_Robert_De_Niro, "Mike", "35"
         );
         assertTrue(text.is_valid());
@@ -370,37 +370,37 @@ public class Ex2MovieTest
     @Test
     void invalid_film_releases()
     {
-        var text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        var text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             String_Deer_Hunter,
             null
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             String_Deer_Hunter,
             ""
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             String_Deer_Hunter,
             "978"
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             String_Deer_Hunter,
             "1978"
         );
         assertTrue(text.is_valid());
 
-        text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             String_Deer_Hunter,
             "197_"
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             String_Deer_Hunter,
             "19781"
         );
@@ -410,31 +410,31 @@ public class Ex2MovieTest
     @Test
     void invalid_film_names()
     {
-        var text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        var text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             null,
             "1978"
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             "",
             "1978"
         );
         assertFalse(text.is_valid());
 
-        text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             "1",
             "1978"
         );
         assertTrue(text.is_valid());
 
-        text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             "12345678901234567890123456789012",
             "1978"
         );
         assertTrue(text.is_valid());
 
-        text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             "123456789012345678901234567890123",
             "1978"
         );
@@ -444,7 +444,7 @@ public class Ex2MovieTest
     @Test
     void valid_film()
     {
-        var text = new Ex2Movie.Text.Film(Ex2Movie.RecordType.CODE_FILM,
+        var text = new Ex2Movie.Text.Film(Ex2Movie.RecordKind.CODE_FILM,
             String_Deer_Hunter, "1978"
         );
         assertTrue(text.is_valid());
@@ -454,35 +454,35 @@ public class Ex2MovieTest
     void invalid_record_type_codes()
     {
         final String CODE_NULL = null;
-        final var const_null = Ex2Movie.RecordType.of(CODE_NULL);
+        final var const_null = Ex2Movie.RecordKind.of(CODE_NULL);
         assertTrue(const_null.isEmpty());
 
         final String CODE_EMPTY = "";
-        final var const_empty = Ex2Movie.RecordType.of(CODE_EMPTY);
+        final var const_empty = Ex2Movie.RecordKind.of(CODE_EMPTY);
         assertTrue(const_empty.isEmpty());
 
         final String CODE_THREE = "3";
-        final var const_three = Ex2Movie.RecordType.of(CODE_THREE);
+        final var const_three = Ex2Movie.RecordKind.of(CODE_THREE);
         assertTrue(const_three.isEmpty());
     }
 
     @Test
     void valid_record_type_codes()
     {
-        final var code_film = Ex2Movie.RecordType.CODE_FILM;
-        final var const_film = Ex2Movie.RecordType.of(code_film);
+        final var code_film = Ex2Movie.RecordKind.CODE_FILM;
+        final var const_film = Ex2Movie.RecordKind.of(code_film);
         const_film.ifPresentOrElse(
             constant -> {
-                assertEquals(Ex2Movie.RecordType.Constant.FILM, constant);
+                assertEquals(Ex2Movie.RecordKind.Constant.FILM, constant);
                 assertEquals(code_film, constant.code());
             }, () -> fail()
         );
 
-        final var code_cast = Ex2Movie.RecordType.CODE_CAST;
-        final var const_cast = Ex2Movie.RecordType.of(code_cast);
+        final var code_cast = Ex2Movie.RecordKind.CODE_CAST;
+        final var const_cast = Ex2Movie.RecordKind.of(code_cast);
         const_cast.ifPresentOrElse(
             constant -> {
-                assertEquals(Ex2Movie.RecordType.Constant.CAST, constant);
+                assertEquals(Ex2Movie.RecordKind.Constant.CAST, constant);
                 assertEquals(code_cast, constant.code());
             }, () -> fail()
         );

@@ -26,15 +26,15 @@ import etl.util.TextHelper;
  */
 public interface Ex2Movie
 {
-    interface RecordType
+    interface RecordKind
     {
         /**
-         * The index of the record type field in the Ex2Movie CSV file.
+         * The index of the record kind field in the Ex2Movie CSV file.
          */
         static final int INDEX = 0;
 
         /**
-         * The string constants of the record type field
+         * The string constants of the record kind field
          * in the Ex2Movie CSV file.
          */
         static final String
@@ -42,7 +42,7 @@ public interface Ex2Movie
         CODE_CAST = "2";
 
         /**
-         * Defines {@code enum} constants of {@code RecordType}.
+         * Defines {@code enum} constants of {@code RecordKind}.
          */
         enum Constant
         {
@@ -59,24 +59,25 @@ public interface Ex2Movie
         }
 
         /**
-         * Transforms a String to the corresponding {@code RecordType}.
+         * Transforms a String to the corresponding {@code RecordKind}.
          * @param code a String corresponding to an enum constant
-         * @return  an {@code Optional} with the matched {@code RecordType},
+         * @return  an {@code Optional} with the matched {@code RecordKind},
          *          or an empty Optional if {@code code} is null or doesn't
-         *          matched to any enum constant.
+         *          match to any enum constant.
          */
         public static Optional<Constant> of(String code)
         {
             if (code == null) return Optional.empty();
 
+            final Optional<Constant> constant =
             switch (code) {
-                case CODE_FILM: return Optional.of(Constant.FILM);
-                case CODE_CAST: return Optional.of(Constant.CAST);
-                default: return Optional.empty();
-            }
+                case CODE_FILM -> Optional.of(Constant.FILM);
+                case CODE_CAST -> Optional.of(Constant.CAST);
+                default -> Optional.empty();
+            };
+            return constant;
         }
     }
-
 
     /**
      * Ex2Movie text records
@@ -90,7 +91,7 @@ public interface Ex2Movie
          */
         record Film
         (
-            String record_type,
+            String record_kind,
             String name,
             String release
         )
@@ -208,7 +209,7 @@ public interface Ex2Movie
          */
         record Cast
         (
-            String record_type,
+            String record_kind,
             String actor_name,
             String role_name,
             String actor_age
@@ -393,8 +394,8 @@ public interface Ex2Movie
                 .reduce(
                     new TreeMap<Text.Film, List<Text.Cast>>(),
                     (accum, csv) -> {
-                        Ex2Movie.RecordType.of(
-                            csv.get(RecordType.INDEX)
+                        Ex2Movie.RecordKind.of(
+                            csv.get(RecordKind.INDEX)
                         )
                         .ifPresentOrElse(constant -> {
                             switch (constant) {
