@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.Year;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 
@@ -108,73 +106,6 @@ public class Ex2MovieTest
     static final Ex2Movie.Text.Cast Text_Anne_Hathaway_in_Intern
     = new Ex2Movie.Text.Cast(code_cast, String_Anne_Hathaway, "Jules", "33");
 
-    @Test
-    void model_map()
-    {
-        final var movie_reader = new java.io.StringReader(movie_csv);
-        final var text_map = Ex2Movie.Extracting.text_map(() -> movie_reader);
-        final var actors = Ex2Movie.Extracting.actors(text_map);
-
-        SortedMap<Ex2Film.Model, List<Ex2Cast.Model>> expected
-        = new TreeMap<Ex2Film.Model, List<Ex2Cast.Model>>();
-
-        {
-            expected.put(
-                Model_Deer_Hunter,
-                List.<Ex2Cast.Model>of(
-                    Model_Robert_De_Niro_in_Deer_Hunter,
-                    Model_Meryl_Streep_in_Deer_Hunter
-                )
-            );
-            expected.put(
-                Model_Morning_Vietnum,
-                List.<Ex2Cast.Model>of(
-                    Model_Robin_Williams_in_Morning_Vietnum
-                )
-            );
-            expected.put(
-                Model_Madison_County,
-                List.<Ex2Cast.Model>of(
-                    Model_Clint_Eastwood_in_Madison_County,
-                    Model_Meryl_Streep_in_Madison_County
-                )
-            );
-            expected.put(
-                Model_Intern,
-                List.<Ex2Cast.Model>of(
-                    Model_Robert_De_Niro_in_Intern,
-                    Model_Rene_Russo_in_Intern,
-                    Model_Anne_Hathaway_in_Intern
-                )
-            );
-        }
-
-        final var actual = Ex2Movie.Extracting.model_map(text_map, actors);
-
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    void actors()
-    {
-        SortedSet<Ex2Actor.Model> expected = new TreeSet<>();
-        {
-            expected.add(Model_Robert_De_Niro_in_Deer_Hunter.actor());
-            expected.add(Model_Meryl_Streep_in_Deer_Hunter.actor());
-            expected.add(Model_Robin_Williams_in_Morning_Vietnum.actor());
-            expected.add(Model_Clint_Eastwood_in_Madison_County.actor());
-            expected.add(Model_Meryl_Streep_in_Madison_County.actor());
-            expected.add(Model_Robert_De_Niro_in_Intern.actor());
-            expected.add(Model_Rene_Russo_in_Intern.actor());
-            expected.add(Model_Anne_Hathaway_in_Intern.actor());
-        }
-
-        final var movie_reader = new java.io.StringReader(movie_csv);
-        final var text_map = Ex2Movie.Extracting.text_map(() -> movie_reader);
-        final var actual = Ex2Movie.Extracting.actors(text_map);
-
-        assertEquals(expected, actual);
-    }
 
     @Test
     void text_map()
