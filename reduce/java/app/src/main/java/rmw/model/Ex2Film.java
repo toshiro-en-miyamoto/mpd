@@ -28,7 +28,7 @@ public interface Ex2Film
         }
     }
 
-    interface Reading
+    interface Input
     {
         record CSV
         (
@@ -49,31 +49,36 @@ public interface Ex2Film
                 return validity;
             }
         }
+    }
 
-        static final ObjectReader csv_reader = new CsvMapper()
-        .readerFor(CSV.class)
+    interface Reading
+    {
+
+        static final ObjectReader csv_in = new CsvMapper()
+        .readerFor(Input.CSV.class)
         .with(
-            a()
-            // CsvSchema.builder()
-            // .addColumn("name")
-            // .addColumn("release")
-            // .build()
+            CsvSchema.builder()
+            .addColumns(
+                () -> Arrays
+                    .stream(Input.CSV.class.getRecordComponents())
+                    .map(RecordComponent::getName)
+                    .iterator(),
+                CsvSchema.ColumnType.STRING
+            )
+            .build()
         );
 
-        static CsvSchema a()
+        static Input.CSV csv(final String line)
         {
-            return
-            Arrays.stream(CSV.class.getRecordComponents())
-            .map(RecordComponent::getName)
-            .reduce(
-                CsvSchema.builder(),
-                (builder, name) -> builder.addColumn(name),
-                (a, b) -> a
-            )
-            .build();
+            try {
+                final var csv = csv_in.<Input.CSV>readValue(line);
+                return csv;
+            } catch (Exception ex) {
+                return null;
+            }
         }
 
-        static Model model(final CSV text)
+        static Model model(final Input.CSV text)
         {
             if (text == null) return null;
 
