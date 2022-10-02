@@ -1,4 +1,4 @@
-package rmw.model;
+package jackson.model;
 
 import java.lang.reflect.RecordComponent;
 import java.time.Year;
@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
-import rmw.util.IntRange;
-import rmw.util.TextHelper;
+import jackson.util.IntRange;
+import jackson.util.TextHelper;
 
 public interface Ex2Film
 {
@@ -40,7 +40,7 @@ public interface Ex2Film
             static final IntRange valid_length_RELEASE
             = IntRange.builder().lower_upper(4).build();
 
-            boolean is_valie()
+            boolean is_valid()
             {
                 boolean validity
                 =  valid_length_NAME.covers(name.length())

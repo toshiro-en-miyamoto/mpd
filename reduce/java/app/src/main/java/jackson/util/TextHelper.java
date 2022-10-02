@@ -1,4 +1,4 @@
-package rmw.util;
+package jackson.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;

@@ -1,4 +1,4 @@
-package rmw.model;
+package jackson.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -9,10 +9,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import rmw.model.Ex2Film.Input;
-import rmw.model.Ex2Film.Model;
-import rmw.model.Ex2Film.Reading;
-import rmw.util.CloseableSupplier;
+import jackson.model.Ex2Film.Input;
+import jackson.model.Ex2Film.Model;
+import jackson.model.Ex2Film.Reading;
+import jackson.util.CloseableSupplier;
 
 public class Ex2FilmTest
 {
@@ -69,7 +69,7 @@ public class Ex2FilmTest
             final var actual_csv_list
             = new BufferedReader(film_reader.get()).lines()
             .map(Reading::csv)
-            .map(csv -> csv.is_valie() ? csv : null)
+            .map(csv -> csv.is_valid() ? csv : null)
             .toList()
             ;
             assertEquals(expected_csv_list, actual_csv_list);
@@ -77,7 +77,7 @@ public class Ex2FilmTest
             final var actual_model_list
             = new BufferedReader(film_reader.get()).lines()
             .map(Reading::csv)
-            .map(csv -> csv.is_valie() ? csv : null)
+            .map(csv -> csv.is_valid() ? csv : null)
             .map(Reading::model)
             .toList()
             ;
@@ -93,7 +93,7 @@ public class Ex2FilmTest
             final var actual_csv_list = Reading.csv_in
             .<Input.CSV>readValues(film_reader.get())
             .readAll().stream()
-            .map(csv -> csv.is_valie() ? csv : null)
+            .map(csv -> csv.is_valid() ? csv : null)
             .toList()
             ;
             assertEquals(expected_csv_list, actual_csv_list);
@@ -101,7 +101,7 @@ public class Ex2FilmTest
             final var actual_model_list = Reading.csv_in
             .<Input.CSV>readValues(film_reader.get())
             .readAll().stream()
-            .map(csv -> csv.is_valie() ? csv : null)
+            .map(csv -> csv.is_valid() ? csv : null)
             .map(Reading::model)
             .toList()
             ;

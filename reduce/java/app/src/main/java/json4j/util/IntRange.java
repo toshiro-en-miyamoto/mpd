@@ -1,4 +1,4 @@
-package rmw.util;
+package json4j.util;
 
 /**
  * Range is an integer interval {@code ⟦a, b⟧}, where {@code a:Z} and

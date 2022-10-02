@@ -1,4 +1,4 @@
-package rmw.util;
+package jackson.util;
 
 /**
  * CloseableSupplier provides a functional interface that
